@@ -165,7 +165,7 @@ function render(){
   if(!isViewer()&&['admin','report','ai'].includes(S.view))S.view='sales';if(S.user.role!=='sales'&&S.view==='clock')S.view='sales';if(S.user.role==='support'&&S.view==='ai')S.view='orders';
   $('logout').classList.remove('hidden');$('bell').classList.toggle('hidden',realRole()==='support');$('viewAs').classList.toggle('hidden',realRole()!=='support');$('viewAs').textContent=VIEW_AS_LABELS[S.user.role]+' ▾';$('viewAs').style.cssText='white-space:nowrap;padding:6px 8px;font-size:12px;min-width:0';$('nav').classList.remove('hidden');
   const nav=[['sales','Bán hàng'],['orders','Đơn hàng']];if(S.user.role==='sales')nav.push(['clock','Chấm công']);nav.push(['schedule','Lịch làm']);if(isViewer()){nav.push(['report','Doanh thu']);if(S.user.role==='owner'&&(realRole()!=='support'||S.data.user.canEdit))nav.push(['ai','Trợ lý AI']);nav.push(['admin','Quản lý'])}
-  $('nav').innerHTML=nav.map(([v,t])=>`<button data-view="${v}" class="${v===S.view?'active':''}"><span>${NAV_ICONS[v]||''}</span>${t}</button>`).join('');
+  $('nav').innerHTML=nav.map(([v,t])=>`<button data-view="${v}" class="${v===S.view?'active':''}"><span class="nav-icon" aria-hidden="true">${NAV_ICONS[v]||''}</span><span class="nav-label">${t}</span></button>`).join('');
   $('nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.view=b.dataset.view;render()});
   if(S.view==='sales')renderSales();if(S.view==='orders')renderOrders();if(S.view==='report')renderReport();if(S.view==='admin')renderAdmin();if(S.view==='ai')renderAI();if(S.view==='schedule')renderSchedule();if(S.view==='clock')renderClock();
   const n=itemsCount(S.cart);$('cartbar').classList.toggle('hidden',S.view!=='sales'||(!n&&!S.pending));
@@ -1371,8 +1371,8 @@ async function renderReport(){
         </div>
 
         <h2 style="margin:28px 0 12px">Theo giờ bán</h2>
-        <div class="card">
-          ${(()=>{const mx=Math.max(1,...r.hours.map(h=>h.total));return r.hours.map(h=>`<div class="bar-row"><span class="lab">${String(h.hour).padStart(2,'0')}h</span><span class="bar" style="width:${Math.max(2,Math.round(h.total/mx*55))}%"></span><span class="val tabular">${money(h.total)} · ${h.count} đơn${h.cups?' · '+h.cups+' ly':''}</span></div>`).join('')||'<p class="muted">Chưa có dữ liệu.</p>'})()}
+        <div class="card hourly-scroll">
+          ${(()=>{const mx=Math.max(1,...r.hours.map(h=>h.total));return r.hours.length?`<table class="hourly-chart tabular" aria-label="Doanh thu, số đơn và số ly theo giờ bán"><thead><tr><th scope="col">Giờ</th><th scope="col" aria-label="Biểu đồ doanh thu"></th><th scope="col">Doanh thu</th><th scope="col">Đơn</th><th scope="col">Ly</th></tr></thead><tbody>${r.hours.map(h=>`<tr><th scope="row">${String(h.hour).padStart(2,'0')}h</th><td class="hourly-track"><span class="hourly-bar" aria-hidden="true" style="width:${Math.max(0,Math.min(100,h.total/mx*100))}%"></span></td><td>${money(h.total)}</td><td>${h.count}</td><td>${h.cups??0}</td></tr>`).join('')}</tbody></table>`:'<p class="muted">Chưa có dữ liệu.</p>'})()}
         </div>
 
         <h2 style="margin:28px 0 12px">Giờ làm của nhân viên</h2>

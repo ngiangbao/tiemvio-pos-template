@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite web",
     "build": "node scripts/generate-legal.mjs && node scripts/generate-ios.cjs && vite build web",
-    "test": "node --test tests/push-worker.test.mjs tests/restructure.test.mjs tests/date-picker.test.mjs tests/update-policy.test.mjs tests/release-feed.test.cjs tests/ios-profile.test.cjs tests/download-routing.test.mjs",
+    "test": "node --test tests/push-worker.test.mjs tests/restructure.test.mjs tests/date-picker.test.mjs tests/update-policy.test.mjs tests/release-feed.test.cjs tests/ios-profile.test.cjs tests/download-routing.test.mjs tests/app-display.test.cjs",
     "test:web": "firebase emulators:exec --only firestore --project demo-tiemvio \"node --test tests/web-backend.test.mjs\"",
     "emulators": "firebase emulators:start --only auth,firestore --project demo-tiemvio",
     "set-owner": "node scripts/set-owner.cjs",
