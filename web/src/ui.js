@@ -32,7 +32,7 @@ const extra=n=>n>0?' (+'+money(n)+')':'';
 const iceText=(i,withPrice)=>i.iceName||(iceList().find(o=>o.id===i.ice)||{}).name||labels[i.ice]||'';
 const sugarText=(i,withPrice)=>(i.sugarName||(i.sugar+'% đường'))+(withPrice?extra(i.sugarPrice):'');
 const tempText=(i,withPrice)=>i.temp==='hot'?'Nóng':iceText(i)+(withPrice?extra(i.icePrice):'');
-const tierBadge=t=>t&&t.id!=='member'?`<span class="tier" style="background:${t.id==='gold'?'#fdf0c8':'#e6ecef'};color:${t.id==='gold'?'#8a6200':'#44525a'}">${esc(t.name)}</span>`:'';
+const tierBadge=t=>t?`<span class="tier" style="background:${t.id==='gold'?'#fdf0c8':'#e6ecef'};color:${t.id==='gold'?'#8a6200':'#44525a'}">${esc(t.name)}</span>`:'';
 const channelName=id=>((S.data&&S.data.channels)||[]).find(c=>c.id===id)?.name||id;
 const LOGO='<img src="/icons/logo.svg" alt="Tiemvio POS " style="height:86px;width:auto;display:block;margin:0 auto">';
 const dmy=iso=>/^\d{4}-\d{2}-\d{2}$/.test(iso||'')?iso.slice(8,10)+'-'+iso.slice(5,7)+'-'+iso.slice(0,4):'';
@@ -257,7 +257,7 @@ function renderSales(){
 
         <div style="border-top:1px solid var(--line-subtle);padding-top:14px;margin-top:14px">
           <div class="eyebrow">MẸO BÁN HÀNG</div>
-          <p class="muted" style="font-size:13px;line-height:1.5">Nhập số điện thoại khách hàng khi thanh toán để tích điểm (1 điểm = 1.000đ giảm giá).</p>
+          <p class="muted" style="font-size:13px;line-height:1.5">Nhập số điện thoại khách hàng khi thanh toán để tích điểm (1 điểm = ${money(S.data.loyalty.pointValue)} giảm giá).</p>
         </div>
       </aside>
     </div>
@@ -921,7 +921,8 @@ function cartModal(){
   const promoValue=()=>{const pr=promoOf();if(!pr||cartTotal()<(pr.minTotal||0))return 0;return pr.type==='percent'?Math.floor(cartTotal()*pr.value/100):Math.min(pr.value,cartTotal())};
   const recalc=()=>{
     const pr=promoOf();$('promoInfo').textContent=pr?(cartTotal()<(pr.minTotal||0)?'Chưa đủ ĐK: đơn tối thiểu '+money(pr.minTotal)+' để áp dụng.':'Giảm '+money(promoValue())+' ('+pr.name+')'):'';
-    const total=Math.max(0,cartTotal()-promoValue()-redeemValue()*L.pointValue-manualValue());
+    const pointDiscount=E?E.discount:redeemValue()*L.pointValue;
+    const total=Math.max(0,cartTotal()-promoValue()-pointDiscount-manualValue());
     $('cartTotal').textContent=money(total);
   };
 
@@ -1555,8 +1556,8 @@ function renderAdmin(){
         </div>
 
         <div class="card">
-          <h3>Khách hàng thân thiết</h3>
-          <p class="muted" style="margin-top:4px">Cứ ${money(S.data.loyalty.earnPerVnd)} thu được 1 điểm; 1 điểm = ${money(S.data.loyalty.pointValue)} khi giảm giá. Hạng theo tổng chi tiêu: ${S.data.tiers.map(t=>t.name+(t.min?' từ '+money(t.min):'')+(t.mult>1?' (×'+t.mult+')':'')).join(' · ')}.</p>
+          <div class="row"><h3>Khách hàng thân thiết</h3><button id="loyaltySettings" class="small soft">Tùy chỉnh</button></div>
+          <p class="muted" style="margin-top:4px">Cứ ${money(S.data.loyalty.earnPerVnd)} thu được 1 điểm; 1 điểm = ${money(S.data.loyalty.pointValue)} khi giảm giá (tối đa ${Math.round(S.data.loyalty.maxRedeemShare*100)}% đơn). Hạng theo tổng chi tiêu: ${S.data.tiers.map(t=>esc(t.name)+(t.min?' từ '+money(t.min):'')+' (×'+t.mult+')').join(' · ')}.</p>
           <div style="margin-top:12px">
             ${S.data.customers.slice(0,6).map(c=>`
               <div class="row" style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line-subtle)">
@@ -1648,6 +1649,7 @@ function renderAdmin(){
   $('app').querySelectorAll('[data-stock]').forEach(b=>b.onclick=()=>stockModal(b.dataset.stock));
   $('app').querySelectorAll('[data-ing]').forEach(b=>b.onclick=()=>ingredientModal(b.dataset.ing));
   $('newMenu').onclick=()=>menuModal();$('newUser').onclick=()=>userModal();$('newPromo').onclick=()=>promoModal();
+  if($('loyaltySettings'))$('loyaltySettings').onclick=loyaltyModal;
   $('app').querySelectorAll('[data-promo]').forEach(b=>b.onclick=()=>promoModal(b.dataset.promo));
   $('app').querySelectorAll('[data-clockout]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await rpc('clockOut',{id:b.dataset.clockout});await refresh(false);render();notify('Đã chốt tan ca.')}catch(e){b.disabled=false;notify(e.message)}});
   $('app').querySelectorAll('[data-menu]').forEach(b=>b.onclick=()=>menuModal(b.dataset.menu));
@@ -1890,6 +1892,27 @@ function recipeModal(productId,size='M'){
   `);
   $('recipeSize').value=size;$('recipeSize').onchange=()=>recipeModal(productId,$('recipeSize').value);
   $('saveRecipe').onclick=()=>submitAdmin('saveRecipe',{productId,size,lines:Array.from($('modal').querySelectorAll('input[data-ing]')).filter(e=>Number(e.value)>0).map(e=>({ingredientId:e.dataset.ing,qty:Number(e.value)}))},'saveRecipe');
+}
+
+function loyaltyModal(){
+  const L=S.data.loyalty;let tiers=S.data.tiers.map(t=>({...t}));
+  openModal(`<h2>Khách hàng thân thiết</h2>
+    <label for="loyalEarn">Chi tiêu bao nhiêu đồng để tích 1 điểm?</label><input id="loyalEarn" type="number" min="1" max="1000000000" step="1" inputmode="numeric" value="${L.earnPerVnd}">
+    <label for="loyalValue">Giá trị giảm giá của 1 điểm (đ)</label><input id="loyalValue" type="number" min="1" max="1000000" step="1" inputmode="numeric" value="${L.pointValue}">
+    <label for="loyalShare">Tối đa bao nhiêu % đơn được giảm bằng điểm?</label><input id="loyalShare" type="number" min="0" max="100" step="1" inputmode="numeric" value="${Math.round(L.maxRedeemShare*100)}">
+    <h3 style="margin-top:20px">Bậc thành viên</h3><p class="muted">Xếp theo tổng tiền khách đã thanh toán. Bậc đầu tiên bắt đầu từ 0đ. Hệ số ×2 tích gấp đôi điểm so với tỷ lệ cơ bản.</p>
+    <div id="loyalTiers" class="stack" style="margin-top:12px"></div><button id="addLoyalTier" type="button" class="small soft" style="margin-top:12px">+ Thêm bậc</button>
+    <p class="notice" style="margin-top:16px">Giữ nguyên điểm và tổng chi tiêu đã có. Hạng được xếp lại theo ngưỡng mới; tỷ lệ tích điểm áp dụng khi thu tiền. Đổi giá trị 1 điểm sẽ thay đổi giá trị quy đổi của số điểm còn lại. Đơn đã tạo giữ khoản giảm bằng điểm đã ghi nhận.</p>
+    <div class="modal-foot"><button id="saveLoyalty" type="button" class="primary wide">Lưu chương trình</button><p id="formError" class="error" role="alert"></p></div>`);
+  const collect=()=>{tiers=tiers.map((t,i)=>({...t,name:$('loyalName'+i).value,min:Number($('loyalMin'+i).value),mult:Number($('loyalMult'+i).value)}));};
+  const draw=()=>{
+    $('loyalTiers').innerHTML=tiers.map((t,i)=>`<div class="card"><label for="loyalName${i}">Tên bậc ${i+1}</label><input id="loyalName${i}" maxlength="40" value="${esc(t.name)}"><div class="two"><div><label for="loyalMin${i}">Chi tiêu từ (đ)</label><input id="loyalMin${i}" type="number" min="0" max="1000000000000" step="1" inputmode="numeric" value="${t.min}" ${i===0?'disabled':''}></div><div><label for="loyalMult${i}">Hệ số tích điểm</label><input id="loyalMult${i}" type="number" min="0.1" max="100" step="0.1" inputmode="decimal" value="${t.mult}"></div></div>${i?`<button type="button" class="small" data-remove-tier="${i}" style="margin-top:10px;color:#a32020">Xóa bậc này</button>`:''}</div>`).join('');
+    $('addLoyalTier').disabled=tiers.length>=10;
+    $('loyalTiers').querySelectorAll('[data-remove-tier]').forEach(b=>b.onclick=()=>{collect();tiers.splice(Number(b.dataset.removeTier),1);draw();});
+  };
+  $('addLoyalTier').onclick=()=>{collect();if(tiers.length>=10)return;tiers.push({id:'tier_'+crypto.randomUUID().replaceAll('-',''),name:'',min:Math.max(...tiers.map(t=>t.min))+1000000,mult:1});draw();};
+  $('saveLoyalty').onclick=()=>{collect();return submitAdmin('saveLoyalty',{earnPerVnd:Number($('loyalEarn').value),pointValue:Number($('loyalValue').value),maxRedeemShare:Number($('loyalShare').value)/100,tiers},'saveLoyalty');};
+  draw();
 }
 
 function promoModal(id){

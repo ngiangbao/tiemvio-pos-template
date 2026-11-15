@@ -60,6 +60,38 @@ const until = async (fn, ms = 4000) => {
   for (;;) { try { const v = await fn(); if (v) return v; } catch (_) { /* retry */ } if (Date.now() > end) throw new Error('timeout'); await new Promise(r => setTimeout(r, 40)); }
 };
 
+test('loyalty program is shared, reassigns tiers without rewriting balances, and staff cannot edit it', async()=>{
+ const o=await phone(OWNER);await seedUser(SALES,'sales');const s=await phone(SALES);
+ const phoneNumber='0900000888';await o.call('createOrder',order({phone:phoneNumber,items:[drink({quantity:4})]}));
+ const config={earnPerVnd:5000,pointValue:2000,maxRedeemShare:0.8,tiers:[{id:'vip',name:'VIP',min:50000,mult:2},{id:'member',name:'Khách mới',min:0,mult:1}]};
+ await assert.rejects(s.call('saveLoyalty',config),/quyền/);
+ await o.call('saveLoyalty',config);
+ const c=await o.call('lookupCustomer',{phone:phoneNumber});assert.equal(c.points,10);assert.equal(c.spent,100000);assert.equal(c.tier.id,'vip');
+ await until(async()=> (await s.call('snapshot',{})).loyalty.earnPerVnd===5000);
+ assert.equal((await s.call('snapshot',{})).tiers[1].name,'VIP');
+ const paid=await s.call('createOrder',order({phone:phoneNumber}));assert.equal(paid.audit[0].earned,10);
+ await o.call('saveLoyalty',{...config,earnPerVnd:1000});
+ await o.call('updateOrder',{id:paid.id,version:1,change:'refund',reason:'Khác: Kiểm thử',mutationId:key()});
+ assert.equal((await o.call('lookupCustomer',{phone:phoneNumber})).points,10);
+});
+
+test('loyalty rejects invalid rates, duplicate thresholds and a missing zero-spend tier',async()=>{
+ const o=await phone(OWNER),good={earnPerVnd:10000,pointValue:1000,maxRedeemShare:0.5,tiers:[{id:'member',name:'Thành viên',min:0,mult:1}]};
+ for(const bad of [{earnPerVnd:0},{pointValue:-1},{maxRedeemShare:2},{tiers:[]},{tiers:[{...good.tiers[0],min:1}]},{tiers:[good.tiers[0],{id:'vip',name:'VIP',min:0,mult:2}]},{tiers:[{...good.tiers[0],mult:0}]}])await assert.rejects(o.call('saveLoyalty',{...good,...bad}));
+ assert.equal((await o.call('snapshot',{})).loyalty.earnPerVnd,10000);
+});
+
+test('editing and cancelling a redeemed order retain its original discount after policy changes',async()=>{
+ const o=await phone(OWNER),phoneNumber='0900000889';
+ await o.call('createOrder',order({phone:phoneNumber,items:[drink({quantity:4})]}));
+ const made=await o.call('createOrder',order({phone:phoneNumber,paid:false,redeem:10,items:[drink({quantity:2})]}));assert.equal(made.total,40000);
+ await o.call('saveLoyalty',{earnPerVnd:5000,pointValue:5000,maxRedeemShare:0.1,tiers:[{id:'member',name:'Thành viên',min:0,mult:1}]});
+ const edited=await o.call('editOrder',{id:made.id,version:1,mutationId:key(),service:'takeaway',items:[drink({quantity:3})]});
+ assert.equal(edited.total,65000);assert.equal(edited.discount,10000);
+ await o.call('updateOrder',{id:made.id,version:2,change:'cancel',reason:'Khác: Kiểm thử',mutationId:key()});
+ assert.equal((await o.call('lookupCustomer',{phone:phoneNumber})).points,10);
+});
+
 /* ---------------- sign-in and roles ---------------- */
 test('owner signs in the first time, gets the default menu; strangers and locked users are refused', async () => {
   const o = await phone(OWNER, 'Chủ');

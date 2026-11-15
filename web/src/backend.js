@@ -439,7 +439,9 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
   }
   /** Ingredient cost of a usage map, in whole đồng. Owner sets `cost` per ingredient unit. */
   const costOf = usage => Math.round(Object.keys(usage).reduce((n, id) => n + usage[id] * (Number((cache.inventory.get(id) || {}).cost) || 0), 0));
-  const tierOf = spent => TIEMVIO.tiers.reduce((best, t) => (Number(spent) >= t.min ? t : best), TIEMVIO.tiers[0]);
+  const loyalty = () => cache.settings.loyaltyProgram || TIEMVIO.loyalty;
+  const tiers = () => cache.settings.loyaltyProgram?.tiers || TIEMVIO.tiers;
+  const tierOf = spent => tiers().reduce((best, t) => (Number(spent) >= t.min ? t : best), tiers()[0]);
   function writeStock(w, usage, sign) {
     Object.keys(usage).forEach(id => {
       if (!cache.inventory.has(id)) return;
@@ -451,7 +453,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
       phone, name: name || undefined, points: inc(delta.points || 0), spent: inc(delta.spent || 0), visits: inc(delta.visits || 0), updatedAt: iso()
     }), {merge: true});
   }
-  const earnPoints = (total, mult = 1) => Math.floor(total / TIEMVIO.loyalty.earnPerVnd * mult);
+  const earnPoints = (total, mult = 1) => Math.floor(total / loyalty().earnPerVnd * mult);
   function writeReverse(w, o) {
     if (!o.phone) return;
     const earned = o.audit.reduce((n, a) => n + (Number(a.earned) || 0), 0);
@@ -516,7 +518,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
       result.clockedIn = cache.clock.filter(x => !x.outAt).map(x => ({id: x.id, email: x.email, name: personName(x.email) || x.name, inAt: x.inAt}));
     }
     result.channels = TIEMVIO.channels;
-    result.tiers = TIEMVIO.tiers;
+    result.tiers = tiers();
     result.promoLimits = TIEMVIO.promo;
     result.promos = [...cache.promos.values()].filter(p => owner || p.active === true).map(p => ({...p, validNow: p.active === true && promoValidNow(p)}));
     const myClock = myOpenClock();
@@ -545,7 +547,8 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
     const open = openShiftDoc();
     result.shift = open ? shiftView(open, expectedCash(open, [...(cache.orders.shiftPaid || new Map()).values()].map(toOrder), [...(cache.orders.shiftRefund || new Map()).values()].map(toOrder))) : null;
     if (owner) result.shifts = cache.shifts.filter(r => r.closedAt).slice(0, 10).map(r => shiftView(r));
-    result.loyalty = TIEMVIO.loyalty;
+    const L = loyalty();
+    result.loyalty = {earnPerVnd: L.earnPerVnd, pointValue: L.pointValue, maxRedeemShare: L.maxRedeemShare};
     result.imagesRev = imagesRev();
     return result;
   }
@@ -648,8 +651,9 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
     const redeem = d.redeem === undefined ? 0 : d.redeem;
     assert(Number.isInteger(redeem) && redeem >= 0, 'Số điểm đổi không hợp lệ.');
     assert(!redeem || phone, 'Phải có số điện thoại khách để đổi điểm.');
-    const discount = redeem * TIEMVIO.loyalty.pointValue;
-    assert(discount <= priced.total * TIEMVIO.loyalty.maxRedeemShare, 'Chỉ được dùng điểm để giảm tối đa ' + TIEMVIO.loyalty.maxRedeemShare * 100 + '% đơn.');
+    const L = loyalty();
+    const discount = redeem * L.pointValue;
+    assert(discount <= priced.total * L.maxRedeemShare, 'Chỉ được dùng điểm để giảm tối đa ' + L.maxRedeemShare * 100 + '% đơn.');
     const manual = d.manualDiscount === undefined ? 0 : d.manualDiscount;
     assert(Number.isInteger(manual) && manual >= 0, 'Giảm giá không hợp lệ.');
     const manualReason = manual ? text_(d.discountReason, 90) : '';
@@ -678,6 +682,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
     const at = iso();
     const created = {at, by: me.email, action: 'created', phone, subtotal: priced.total, discount, redeemed: redeem, manualDiscount: manual, discountReason: manualReason,
       promoId: promo ? promo.id : '', promoName: promo ? promo.name : '', promoDiscount, tier: tier.id};
+    created.loyaltyPointValue = L.pointValue; created.loyaltyMaxRedeemShare = L.maxRedeemShare;
     if (d.paid) created.earned = phone ? earnPoints(total, tier.mult) : 0;
     created.stockUsage = usageFor(priced.items);
     const seq = seqAhead ? await seqAhead : await allocSeq(dayOf(at));
@@ -868,8 +873,9 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
         assert(!o.paid && ['waiting', 'making', 'ready'].includes(o.status), 'Chỉ sửa được đơn chưa thu tiền và chưa hủy. Đơn đã thu tiền cần hoàn tiền rồi tạo lại.');
         const first = o.audit[0] || {};
         const redeemed = first.redeemed || 0;
-        const pointDiscount = redeemed * TIEMVIO.loyalty.pointValue;
-        assert(pointDiscount <= priced.total * TIEMVIO.loyalty.maxRedeemShare, 'Đơn sau khi sửa quá nhỏ để giữ ' + redeemed + ' điểm đã đổi (tối đa ' + TIEMVIO.loyalty.maxRedeemShare * 100 + '% giá trị). Hãy thêm món, hoặc hủy đơn và tạo lại.');
+        const pointDiscount = Number(first.discount) || 0;
+        const redeemShare = first.loyaltyMaxRedeemShare ?? TIEMVIO.loyalty.maxRedeemShare;
+        assert(pointDiscount <= priced.total * redeemShare, 'Đơn sau khi sửa quá nhỏ để giữ ' + redeemed + ' điểm đã đổi (tối đa ' + redeemShare * 100 + '% giá trị). Hãy thêm món, hoặc hủy đơn và tạo lại.');
         const total = priced.total - promoDiscount - pointDiscount - manual;
         assert(total >= 0, 'Tổng giảm giá vượt quá giá trị đơn.');
         // Stock: only the difference between what was taken before and what the new items need.
@@ -1253,6 +1259,28 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
     batch.set(ref('aiConfig', 'shared'), {provider, keys: clean(d.keys, 300), models: clean(d.models, 80)});
     await commit(batch);
     return {ok: true};
+  }
+  async function saveLoyalty(d) {
+    allow(['owner']);
+    const earnPerVnd = Number(d.earnPerVnd), pointValue = Number(d.pointValue), maxRedeemShare = Number(d.maxRedeemShare);
+    assert(Number.isSafeInteger(earnPerVnd) && earnPerVnd >= 1 && earnPerVnd <= 1000000000, 'Số tiền để tích 1 điểm phải là số nguyên từ 1 đến 1.000.000.000đ.');
+    assert(Number.isSafeInteger(pointValue) && pointValue >= 1 && pointValue <= 1000000, 'Giá trị 1 điểm phải là số nguyên từ 1 đến 1.000.000đ.');
+    assert(Number.isFinite(maxRedeemShare) && maxRedeemShare >= 0 && maxRedeemShare <= 1, 'Mức giảm bằng điểm phải từ 0 đến 100%.');
+    assert(Array.isArray(d.tiers) && d.tiers.length >= 1 && d.tiers.length <= 10, 'Cần từ 1 đến 10 bậc thành viên.');
+    const list = d.tiers.map(t => ({id: String(t.id || ''), name: text_(t.name, 40), min: Number(t.min), mult: Number(t.mult)})).sort((a,b) => a.min - b.min);
+    const ids = new Set(), names = new Set(), mins = new Set();
+    for (const t of list) {
+      assert(/^[a-zA-Z0-9_-]{1,60}$/.test(t.id) && !ids.has(t.id), 'Mã bậc thành viên không hợp lệ hoặc bị trùng.');
+      assert(t.name && !names.has(t.name.toLocaleLowerCase('vi')), 'Tên bậc thành viên phải có nội dung và không trùng nhau.');
+      assert(Number.isSafeInteger(t.min) && t.min >= 0 && t.min <= 1000000000000 && !mins.has(t.min), 'Ngưỡng chi tiêu phải là số nguyên không âm, không trùng nhau.');
+      assert(Number.isFinite(t.mult) && t.mult >= 0.1 && t.mult <= 100, 'Hệ số tích điểm của mỗi bậc phải từ 0,1 đến 100.');
+      ids.add(t.id); names.add(t.name.toLocaleLowerCase('vi')); mins.add(t.min);
+    }
+    assert(list[0].min === 0, 'Bậc đầu tiên phải có ngưỡng chi tiêu 0đ.');
+    const program = {earnPerVnd, pointValue, maxRedeemShare, tiers: list};
+    const batch = fs.writeBatch(db); batch.set(ref('settings', 'shop'), {loyaltyProgram: program}, {merge: true});
+    await commit(batch); cache.settings = {...cache.settings, loyaltyProgram: program};
+    return program;
   }
   async function saveSettings(d) {
     allow(['owner']);
@@ -1735,7 +1763,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
 
   /* ---------------- dispatcher ---------------- */
   const handlers = {
-    snapshot, createOrder, updateOrder, editOrder, restructureOrders, reconcileAll, saveMenu, deleteMenu, deleteIngredient, deleteUser, deletePromo, reorderMenu, saveMenuImage, menuImages: async () => menuImages(), saveUser, saveSettings, staffOrders, saveIceOptions, saveSugarOptions, scheduleWeek, saveShift, deleteShift, copyWeek, pruneSchedule, storageUsage, cleanupOldData, getAiConfig, saveAiConfig, listAiChats, createAiChat, saveAiTurn, loadAiChat, pruneAiChats, saveDiscountReasons, saveCancelReasons, saveMenuCategories,
+    snapshot, createOrder, updateOrder, editOrder, restructureOrders, reconcileAll, saveMenu, deleteMenu, deleteIngredient, deleteUser, deletePromo, reorderMenu, saveMenuImage, menuImages: async () => menuImages(), saveUser, saveSettings, saveLoyalty, staffOrders, saveIceOptions, saveSugarOptions, scheduleWeek, saveShift, deleteShift, copyWeek, pruneSchedule, storageUsage, cleanupOldData, getAiConfig, saveAiConfig, listAiChats, createAiChat, saveAiTurn, loadAiChat, pruneAiChats, saveDiscountReasons, saveCancelReasons, saveMenuCategories,
     saveIngredient, adjustStock, saveRecipe, saveExpense, openShift, closeShift, lookupCustomer, report, exportAll, savePromo, clockIn, clockOut,
     version: async () => ({version: TIEMVIO.version}), logout: async () => true
   };

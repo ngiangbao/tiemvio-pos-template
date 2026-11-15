@@ -22,3 +22,12 @@ test('split rejects omitted, duplicate, fractional and excess quantities and emp
   for(const groups of [[[],[{line:0,quantity:3}]],[[{line:0,quantity:1}],[{line:0,quantity:1}]],[[{line:0,quantity:1.5}],[{line:0,quantity:1.5}]],[[{line:0,quantity:2}],[{line:0,quantity:2}]],[[{line:0,quantity:1},{line:0,quantity:1}],[{line:0,quantity:1}]]])assert.throws(()=>splitHistorical(sample(),groups,usage));
 });
 test('merge rejects different loyalty customers',()=>{const a=sample(),b=sample();b.audit[0].phone='0901234567';assert.throws(()=>mergeHistorical([a,b],usage),/số điện thoại/)});
+
+test('split and merge retain historical custom point value and redemption limit',()=>{
+  const source=sample();Object.assign(source.audit[0],{redeemed:4,discount:8000,loyaltyPointValue:2000,loyaltyMaxRedeemShare:1,promoDiscount:0,manualDiscount:0});source.total=2000;
+  const parts=splitHistorical(source,[[{line:0,quantity:1}],[{line:0,quantity:2}]],usage);
+  assert.equal(parts.reduce((n,p)=>n+p.first.discount,0),8000);assert.equal(parts.reduce((n,p)=>n+p.first.redeemed,0),4);
+  const merged=mergeHistorical(parts.map(p=>({...p,audit:[p.first]})),usage);
+  assert.equal(merged.total,2000);assert.equal(merged.first.loyaltyPointValue,2000);assert.equal(merged.first.loyaltyMaxRedeemShare,1);
+  const old=sample();assert.throws(()=>mergeHistorical([source,old],usage),/giá trị khác nhau/);
+});

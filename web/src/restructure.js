@@ -37,8 +37,10 @@ export function splitHistorical(source, groups, usageFor) {
     rows.forEach((x, i) => { x.lineTotal = amounts[i]; delete x._line; });
   });
   const first = source.audit[0] || {}, weights = parts.map(items => items.reduce((n, x) => n + x.lineTotal, 0));
-  const redeemed = allocate(first.redeemed || 0, weights, weights.map(x => Math.floor(x * 0.5 / 1000)));
-  const pointDiscounts = redeemed.map(x => x * 1000);
+  const pointValue = first.redeemed ? first.discount / first.redeemed : (first.loyaltyPointValue || 1000);
+  const redeemShare = first.loyaltyMaxRedeemShare ?? 0.5;
+  const redeemed = allocate(first.redeemed || 0, weights, weights.map(x => Math.floor(x * redeemShare / pointValue)));
+  const pointDiscounts = redeemed.map(x => x * pointValue);
   const promo = allocate(first.promoDiscount || 0, weights, weights.map((x, i) => x - pointDiscounts[i]));
   const manual = allocate(first.manualDiscount || 0, weights, weights.map((x, i) => x - pointDiscounts[i] - promo[i]));
   const stock = parts.map(() => ({})), actual = parts.map(items => usageFor(items));
@@ -59,6 +61,10 @@ export function mergeHistorical(sources, usageFor) {
   if (items.length > 40) throw new Error('Đơn sau khi gộp vượt 40 dòng món.');
   const phones = sources.map(x => String((x.audit[0] || {}).phone || ''));
   if (new Set(phones).size > 1) throw new Error('Chỉ gộp các đơn có cùng số điện thoại tích điểm (hoặc cùng để trống).');
+  const redemptionValues = sources.map(x => x.audit[0]).filter(x => x.redeemed).map(x => x.discount / x.redeemed);
+  if (new Set(redemptionValues).size > 1) throw new Error('Các đơn đổi điểm theo giá trị khác nhau. Hãy giữ riêng để bảo toàn điểm và tiền giảm đã ghi nhận.');
+  first.loyaltyPointValue = redemptionValues[0] || first.loyaltyPointValue || 1000;
+  first.loyaltyMaxRedeemShare = Math.max(...sources.map(x => x.audit[0].loyaltyMaxRedeemShare ?? 0.5));
   for (const field of ['subtotal', 'redeemed', 'discount', 'promoDiscount', 'manualDiscount']) first[field] = sources.reduce((n, x) => n + (Number((x.audit[0] || {})[field]) || 0), 0);
   first.subtotal = items.reduce((n, x) => n + x.lineTotal, 0);
   first.stockUsage = {};
