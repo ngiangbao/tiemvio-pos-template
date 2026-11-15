@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>PayloadType</key><string>Configuration</string><key>PayloadVersion</key><integer>1</integer>
+<key>PayloadIdentifier</key><string>app.pos.webclip.f0f06217f7ecf478.profile</string>
+<key>PayloadUUID</key><string>83bca95a-5d21-87fd-a076-c295688f53fc</string>
+<key>PayloadDisplayName</key><string>Tiemvio POS · Web Clip</string>
+<key>PayloadDescription</key><string>Chỉ thêm biểu tượng Tiemvio POS mở https://APP_HOST.invalid/. Không đăng ký quản lý thiết bị, không cài chứng chỉ hoặc cấu hình VPN.</string>
+<key>PayloadRemovalDisallowed</key><false/>
+<key>PayloadContent</key><array><dict>
+<key>PayloadType</key><string>com.apple.webClip.managed</string><key>PayloadVersion</key><integer>1</integer>
+<key>PayloadIdentifier</key><string>app.pos.webclip.f0f06217f7ecf478.clip</string><key>PayloadUUID</key><string>25506ceb-522a-8830-a67b-c096320b72b7</string>
+<key>PayloadDisplayName</key><string>Tiemvio POS</string><key>Label</key><string>Tiemvio POS</string>
+<key>URL</key><string>https://APP_HOST.invalid/</string><key>FullScreen</key><true/>
+<key>IsRemovable</key><true/><key>Precomposed</key><true/><key>IgnoreManifestScope</key><false/>
+<key>Icon</key><data>iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEOoAABDqAYLTCpgAAAMeSURBVHhe7dKxaQVADETB34WLcxnuHzvfUFLivVmY5ALBwft8ff/8QotPPsB/JmiqCJoqgqaKoKkiaKoImiqCpoqgqSJoqgiaKoKmiqCpImiqCJoqgqaKoKkiaKoImiqCpoqgqSJoqgiaKoKmiqCpImiqCJoqgqaKoKkiaKoImiqCpoqgqSJoqgiaKoKmiqCpImiqCJoqgqaKoKkiaKoImiqCpoqgqSJoqgiaKoKmiqCpImiqCJoqgqaKoKkiaKoImirPBt28/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLBF24/OtLng362mZ5izlBH9ksbzEn6COb5S3mBH1ks7zFnKCPbJa3mBP0kc3yFnOCPrJZ3mJO0Ec2y1vMCfrIZnmLOUEf2SxvMSfoI5vlLeYEfWSzvMWcoI9slreYE/SRzfIWc4I+slneYk7QRzbLW8wJ+shmeYs5QR/ZLG8xJ+gjm+Ut5gR9ZLO8xZygj2yWt5gT9JHN8hZzgj6yWd5iTtBHNstbzAn6yGZ5izlBH9ksbzEn6COb5S3mBH1ks7zFnKCPbJa3mBP0kc3yFnOCPrJZ3mJO0Ec2y1vMCfrIZnmLOUEf2SxvMSfoI5vlLeYEfWSzvMWcoI9slreYE/SRzfIWc4I+slneYk7QRzbLW8wJ+shmeYs5QR/ZLG8xJ+gjm+Ut5gR9ZLO8xZygj2yWt5gT9JHN8hZzgj6yWd5iTtBHNstbzAn6yGZ5izlBH9ksbzEn6COb5S3mBH1ks7zFnKCPbJa3mBP0kc3yFnOCPrJZ3mJO0Ec2y1vMCZoqgqaKoKkiaKoImiqCpoqgqSJoqgiaKoKmiqCpImiqCJoqgqaKoKkiaKoImiqCpoqgqSJoqgiaKoKmiqCpImiqCJoqgqaKoKkiaKoImiqCpoqgqSJoqgiaKoKmiqCpImiqCJoqgqaKoKkiaKoImiqCpoqgqSJoqgiaKoKmiqCpImiqCJoqgqaKoKkiaKoImiqCpoqgqfIHansOzdrK9EYAAAAASUVORK5CYII=</data>
+</dict></array></dict></plist>

@@ -1,0 +1,231 @@
+# Giấy phép, điều khoản và miễn trừ trách nhiệm Tiemvio POS
+
+Cập nhật 16-11-2026
+
+## 1. Nhà cung cấp và phạm vi áp dụng
+
+Tiemvio POS hỗ trợ bán hàng, quản lý đơn, thực đơn, kho, nhân viên và báo cáo. Tác giả được ghi nhận: Nguyễn Giang Bảo; email hỗ trợ và quyền riêng tư: support@example.invalid. Thông tin này không xác nhận tác giả là luật sư, ngân hàng, kiểm toán viên hay nhà cung cấp hóa đơn điện tử được cơ quan thuế chấp thuận.
+
+Đối với dịch vụ trả phí, hợp đồng/đơn đặt dịch vụ phải xác định bên cung cấp hợp pháp, địa chỉ, mã số thuế, người đại diện, phạm vi cửa hàng, phí và nghĩa vụ xuất hóa đơn dịch vụ trước khi thu tiền. Thông tin tác giả trong app không thay đăng ký kinh doanh hay các thông tin này.
+
+Điều khoản hướng tới người dùng kinh doanh (B2B). Chủ quán cần có thẩm quyền cấp quyền cho nhân viên và quyết định sử dụng dữ liệu cửa hàng. Tải bộ cài không tự cấp tài khoản hoặc quyền truy cập cửa hàng khác.
+
+## 2. Giao kết, thứ tự ưu tiên và mốc pháp luật
+
+Mốc đối chiếu nguồn công khai: 16-11-2026. Căn cứ hợp đồng gồm Bộ luật Dân sự 91/2015/QH13, đặc biệt Điều 117, 156, 351, 360, 405, 406, 419; Luật Thương mại 36/2005/QH11, Điều 294–295 và 302–305; Luật Giao dịch điện tử 20/2023/QH15. Nếu có quan hệ tiêu dùng, áp dụng thêm Luật 19/2023/QH15, gồm Điều 25 về điều khoản bị cấm.
+
+Ưu tiên quy định bắt buộc của pháp luật; sau đó hợp đồng/SLA/phụ lục xử lý dữ liệu được giao kết hợp lệ; sau đó điều khoản này. Thỏa thuận riêng không được tước quyền của chủ thể dữ liệu hay bên thứ ba. Nút Đã đọc chỉ đóng tài liệu, không được coi là bằng chứng tự động ký hợp đồng, chấp nhận mọi thay đổi bất lợi hay đồng ý mọi xử lý dữ liệu.
+
+Tài liệu không phải chứng nhận tuân thủ hoặc tư vấn pháp lý cho một vụ việc. Việc xác định nghĩa vụ thuế, giấy phép, đăng ký hành chính, hồ sơ dữ liệu, hợp đồng và tranh chấp cần luật sư thực tế tại Việt Nam/kế toán phụ trách rà soát theo tình trạng cụ thể. Văn bản mới hoặc quy định chuyên ngành có thể thay đổi cách áp dụng sau mốc nêu trên.
+
+## 3. Bản quyền và giấy phép thương mại
+
+© 2026 Nguyễn Giang Bảo, bảo lưu quyền thuộc tác giả/chủ sở hữu hợp pháp. Chương trình máy tính được bảo hộ theo Luật Sở hữu trí tuệ 50/2005/QH11 đã được sửa đổi, bổ sung, gồm Luật 131/2025/QH15; tham chiếu Điều 6, 14, 20 và 22. Đây là giấy phép thương mại độc quyền, không phải giấy phép mã nguồn mở.
+
+Khách hàng được chấp thuận được quyền sử dụng không độc quyền trong phạm vi cửa hàng, tài khoản, thời hạn và gói dịch vụ đã thỏa thuận. Nhân viên dùng theo phân quyền. Không được cho thuê lại, bán lại dịch vụ, công bố mã nguồn, nhân bản hệ thống để kinh doanh, cấp phép lại hoặc xóa thông báo bản quyền khi chưa có văn bản đồng ý, trừ quyền bắt buộc của pháp luật/giấy phép thành phần thứ ba.
+
+Cho phép tải bộ cài EXE/APK chính thức và chia sẻ nguyên vẹn đường dẫn tải cho người có nhu cầu. Quyền tải không phải quyền nhận mã nguồn, sửa thương hiệu hoặc phân phối bộ cài đã sửa. Nhãn hiệu, logo, thực đơn, ảnh và dữ liệu cửa hàng thuộc quyền của chủ thể có quyền tương ứng; nhà cung cấp chỉ xử lý trong phạm vi cần thiết để cung cấp dịch vụ.
+
+## 4. Mã nguồn, thư viện và hành vi sử dụng
+
+Không truy cập trái phép, vượt quyền, dò khóa, phát tán mã độc, làm sai lệch nhật ký hoặc gây gián đoạn. Kiểm thử bảo mật có khả năng ảnh hưởng dịch vụ phải thống nhất phạm vi trước. Báo lỗi qua đầu mối hỗ trợ, không công khai dữ liệu thật hoặc khóa truy cập.
+
+Quyền theo giấy phép mã nguồn mở được giữ nguyên. Danh mục trong THIRD-PARTY-LICENSES.md và thông báo đi kèm gói phân phối; điều khoản riêng không tước quyền do Apache-2.0, MIT, SIL OFL hoặc giấy phép hợp lệ khác cấp. Chặn sao chép trên giao diện không bảo đảm không thể xem mã phía trình duyệt; bảo mật phải dựa vào kiểm soát truy cập máy chủ và bảo vệ bí mật.
+
+Khách hàng bảo đảm quyền với nội dung tải lên. Nội dung/ảnh do AI tạo không mặc nhiên có độc quyền hoặc không xâm phạm quyền người khác; phải kiểm tra trước khi dùng thương mại. Không dùng dữ liệu khách hàng cho quảng cáo, bán dữ liệu hoặc huấn luyện mô hình riêng ngoài căn cứ và thỏa thuận hợp pháp.
+
+## 5. Tài khoản, phân quyền và hỗ trợ
+
+Dùng tài khoản Google riêng, xác thực nhiều lớp và khóa thiết bị. Chủ quán rà soát quyền khi nhân sự thay đổi, không chia sẻ OTP/mật khẩu/mã khôi phục. Không gửi bí mật qua kênh hỗ trợ thông thường.
+
+Template không cấp quyền sửa dữ liệu hoặc đọc AI cho email hỗ trợ thực nào. Hỗ trợ chỉ xem theo phân quyền; người triển khai phải kiểm tra và công bố quyền thực tế trong hợp đồng.
+
+Nhà cung cấp phải bảo mật tài khoản hỗ trợ, chỉ truy cập đúng mục đích dịch vụ và phối hợp lưu dấu vết. Chủ quán có thể yêu cầu hạn chế/thu hồi quyền; nếu phải đổi quy tắc máy chủ thì phải sửa và kiểm tra cấu hình thực tế, không chỉ đổi góc nhìn giao diện. Tài khoản bị xâm nhập không mặc nhiên làm chủ quán chịu mọi thiệt hại; trách nhiệm vẫn xác định theo lỗi và nghĩa vụ của từng bên.
+
+## 6. POS và hóa đơn điện tử là hai phạm vi khác nhau
+
+Phiên bản hiện tại không phát hành hóa đơn điện tử hợp lệ, ký số hóa đơn, cấp mã hay truyền dữ liệu hóa đơn tới cơ quan thuế. Đơn hàng, báo cáo, file xuất, số đơn và QR chuyển khoản là dữ liệu quản trị; không tự thành hóa đơn điện tử chỉ vì được tạo bằng máy tính/điện thoại.
+
+Cần đối chiếu Điều 26 Luật Quản lý thuế 108/2025/QH15; Điều 4, 6, 7, 9, 10 Nghị định 254/2026/NĐ-CP và Thông tư 91/2026/TT-BTC về nguyên tắc, đối tượng/ngoại lệ, thời điểm, nội dung và quản lý hóa đơn. Cơ sở thuộc diện hóa đơn điện tử khởi tạo từ máy tính tiền phải có giải pháp đáp ứng kết nối/chuyển dữ liệu theo quy định; cài Tiemvio POS không tự hoàn thành nghĩa vụ đó.
+
+Không chờ khách yêu cầu mới xem xét nghĩa vụ lập hóa đơn. Không áp dụng một ngưỡng doanh thu cũ cho mọi doanh nghiệp/hộ kinh doanh. Các quy định 123/2020/NĐ-CP, 70/2025/NĐ-CP, 78/2021/TT-BTC, 32/2025/TT-BTC chỉ được viện dẫn đúng giai đoạn và quy định chuyển tiếp, không dùng riêng làm bộ căn cứ hiện hành.
+
+Chủ quán dùng giải pháp hóa đơn đáp ứng pháp luật, đăng ký và lưu dữ liệu đúng quy định. Tích hợp tương lai chỉ được coi là hoạt động sau khi cấu hình, thỏa thuận, kiểm thử và xác nhận việc tiếp nhận dữ liệu thực tế; tài liệu không hứa sẵn chức năng này.
+
+## 7. Mất mạng, dữ liệu sai và gộp/tách đơn
+
+Phân biệt đơn lưu tạm trên thiết bị, POS đã đồng bộ và hóa đơn được hệ thống thuế tiếp nhận. QR hiển thị hoặc thông báo lưu tạm không chứng minh ngân hàng đã nhận tiền hay cơ quan thuế đã nhận hóa đơn.
+
+Khi có sự cố, giữ bằng chứng, thời điểm giao dịch và thông tin hàng hóa/người mua cần thiết; dùng phương án dự phòng hợp lệ của hệ thống hóa đơn và liên hệ đơn vị hóa đơn/cơ quan thuế. Mất mạng POS không tự cho phép lùi thời điểm lập, ký lùi ngày, tạo mã giả hoặc bỏ truyền dữ liệu. Không áp dụng một hạn khắc phục chung cho mọi sự cố.
+
+Kiểm tra mã số thuế/số định danh, tên, địa chỉ, hàng hóa, giá, giảm giá và thuế suất trước khi phát hành. Hóa đơn đã phát hành sai phải xử lý theo quy định hiện hành và trạng thái hóa đơn; không sửa/xóa âm thầm.
+
+Gộp/tách/sửa/hủy đơn trong app chỉ tác động dữ liệu vận hành theo quyền được cấp; không tự điều chỉnh/hủy hóa đơn ngoài app hoặc hoàn tiền ngân hàng. Chủ quán đối chiếu hệ thống hóa đơn, giữ liên kết và dấu vết để tránh trùng/bỏ doanh thu. Lịch sử sửa đơn là hỗ trợ kiểm tra, không phải kho chứng từ bất biến được chứng nhận.
+
+## 8. Báo cáo, kế toán, thuế và rủi ro
+
+Doanh thu, giá vốn, lợi nhuận, điểm, kho và lương ước tính phụ thuộc dữ liệu nhập, định lượng, hoàn tiền, múi giờ, cấu hình và đồng bộ. Không mặc nhiên là sổ kế toán, tờ khai hay số liệu đã kiểm toán. Đối chiếu với sao kê, tiền mặt, hóa đơn và sổ sách trước khi kê khai/quyết toán.
+
+Lưu chứng từ theo Luật Kế toán 88/2015/QH13 đã được sửa đổi, gồm Điều 41 về bảo quản/lưu trữ và quy định thuế tương ứng; thời hạn khác nhau theo loại hồ sơ. Hết nhu cầu xem trên app không đồng nghĩa được xóa hồ sơ còn nghĩa vụ lưu hoặc liên quan thanh tra/tranh chấp.
+
+Phần mềm không thay chủ quán đăng ký kinh doanh, tính/khấu trừ/nộp thuế hoặc khai thuế nếu chưa có dịch vụ và ủy quyền hợp pháp riêng. Nhà cung cấp cũng phải thực hiện nghĩa vụ thuế/hóa đơn đối với dịch vụ mình bán. Không có thuế suất hoặc cam kết miễn/giảm thuế chung cho mọi cửa hàng.
+
+Vi phạm có thể dẫn tới xử lý hành chính, truy thu, chậm nộp, bồi thường hoặc hình sự nếu đủ yếu tố. Không cam kết dùng app sẽ miễn phạt. Mức phạt/thời hiệu/căn cứ cần kiểm tra tại thời điểm hành vi, không suy từ một ví dụ thành kết luận cho mọi cửa hàng.
+
+Xử phạt thuế/hóa đơn đối chiếu Nghị định 125/2020/NĐ-CP đã được sửa đổi bởi Nghị định 102/2021/NĐ-CP, 310/2025/NĐ-CP và 291/2026/NĐ-CP; có thể tra bản hợp nhất 27/2026/VBHN-NĐ-BTC ngày 27-08-2026. Bản hợp nhất giúp tra cứu, không tạo một nghĩa vụ độc lập. Phân biệt số lượng hóa đơn, chủ thể tổ chức/cá nhân, hành vi, thời điểm và tình tiết trước khi xác định chế tài.
+
+## 9. Thanh toán, QR và đối soát
+
+App ghi nhận tiền mặt/chuyển khoản và tạo QR theo tài khoản cấu hình; hiện không giữ tiền, mở ví hoặc thực hiện chuyển tiền thay khách. Phân loại hoạt động và yêu cầu cấp phép phải theo thực tế, Nghị định 52/2024/NĐ-CP, đặc biệt Điều 3 và Điều 22; ghi không phải trung gian thanh toán không miễn yêu cầu nếu chức năng thực tế thuộc diện quản lý.
+
+Kiểm tra ngân hàng, số tài khoản, tên người nhận và tiền thực nhận. Đã thanh toán/Đã khớp/Đối soát toàn bộ là ghi nhận thao tác trong app, không thay xác nhận ngân hàng. Đối soát hàng loạt không tự kiểm tra sao kê hay chuyển tiền. Sửa trạng thái đơn không hoàn tiền thực tế.
+
+Không nhập PIN, OTP, mật khẩu hoặc thông tin thẻ nhạy cảm vào ghi chú/AI. Sai người nhận, giao dịch treo và hoàn tiền xử lý qua kênh ngân hàng chính thức. Trước khi thêm thu hộ/chi hộ, ví, chia tiền, cổng thanh toán hoặc tự xác nhận ngân hàng phải thẩm định giấy phép, đối tác, bảo mật, đối soát và trách nhiệm.
+
+## 10. Dữ liệu, mục đích và vai trò
+
+Có thể xử lý email/tên Google và quyền; đơn, tên/số điện thoại/điểm khách; lịch và giờ làm nhân viên; thông tin nhận tiền/cấu hình cửa hàng; dấu vết thao tác, khóa AI/chat; định danh đăng ký thông báo khi bật. Không thêm dữ liệu nhạy cảm không cần thiết vào ghi chú tự do.
+
+Mục đích vận hành: xác thực, cấp quyền, đơn hàng, quản lý cửa hàng/nhân viên/khách, báo cáo, đồng bộ, thông báo đã bật, hỗ trợ đúng phạm vi và an ninh dịch vụ. Mục đích mới như marketing, bán dữ liệu hoặc huấn luyện mô hình riêng cần căn cứ và thông tin/chấp thuận riêng khi luật yêu cầu.
+
+Chủ quán thường là bên kiểm soát dữ liệu khách/nhân viên do mình quyết định thu thập; nhà cung cấp là bên xử lý khi làm theo chỉ dẫn hợp pháp. Với dữ liệu tài khoản/hợp đồng/an ninh do mình quyết định mục đích, nhà cung cấp có thể là bên kiểm soát hoặc bên kiểm soát và xử lý. Vai trò theo thực tế, không thể đẩy mọi trách nhiệm sang chủ quán bằng ToS.
+
+Cần phụ lục xử lý dữ liệu ghi mục đích, loại/chủ thể dữ liệu, hạn lưu, chỉ dẫn, quyền truy cập, nhà thầu phụ, luồng xuyên biên giới, bảo mật, sự cố, quyền chủ thể, xuất/xóa và kiểm tra tuân thủ. Tài liệu này không thay hồ sơ đánh giá tác động hay thủ tục hành chính.
+
+## 11. Căn cứ xử lý, thông báo và đồng ý
+
+Áp dụng Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15, gồm Điều 3, 4, 9, 19 và Nghị định 356/2025/NĐ-CP. Chỉ thu dữ liệu cần thiết, đúng mục đích/căn cứ hợp pháp. Nếu dựa vào đồng ý, phải thông tin rõ hoạt động xử lý và lưu được bằng chứng; không suy từ im lặng hoặc ô tích sẵn.
+
+Chủ quán thông báo riêng cho khách tích điểm và nhân viên về dữ liệu, mục đích, người nhận, hạn lưu, rủi ro và quyền/cách liên hệ. Phân biệt phần bắt buộc và tùy chọn; không ép số điện thoại chỉ để bán hàng nếu thiếu nhu cầu/căn cứ. Đồng ý của chủ quán không thay quyền quyết định của khách/nhân viên.
+
+Ngoại lệ không cần đồng ý chỉ áp dụng khi thực sự đáp ứng Điều 19 và nghĩa vụ đi kèm, không phải lý do có hợp đồng/chống gian lận vô hạn. Dữ liệu trẻ em/nhóm cần bảo vệ phải xác minh điều kiện riêng. Không ghép marketing vào chấp thuận thanh toán.
+
+Đã đọc điều khoản không phải đồng ý gửi mọi dữ liệu sang AI/chuyển ra nước ngoài. Nếu app chưa có chức năng ghi nhận/rút đồng ý tương ứng, phải có quy trình hợp lệ riêng; nêu trong chính sách không chứng minh chức năng đã được triển khai. Hồ sơ theo Nghị định 13/2023/NĐ-CP cần xử lý theo chuyển tiếp, không mặc nhiên phải lập lại hoặc mặc nhiên được miễn.
+
+## 12. Quyền dữ liệu và yêu cầu của cá nhân
+
+Điều 4 Luật 91/2025/QH15 bảo vệ quyền được biết, đồng ý/từ chối/rút đồng ý, tiếp cận/chỉnh sửa, yêu cầu cung cấp/xóa/hạn chế/phản đối xử lý, khiếu nại, tố cáo, khởi kiện, bồi thường và bảo vệ dữ liệu theo điều kiện luật định. Dùng app không phải từ bỏ các quyền đó.
+
+Khách/nhân viên liên hệ cửa hàng kiểm soát dữ liệu; có thể gửi support@example.invalid, tiêu đề Quyền dữ liệu cá nhân – Tiemvio POS để xác định bên có trách nhiệm. Chỉ cung cấp thông tin tối thiểu để xác minh, không gửi OTP/mật khẩu hoặc giấy tờ đầy đủ qua kênh không an toàn. Bên tiếp nhận phải xác minh tương xứng và xử lý đúng thời hạn từng loại yêu cầu theo Nghị định 356/2025/NĐ-CP; không hứa mọi yêu cầu xong trong 72 giờ.
+
+Xóa có thể bị giới hạn bởi nghĩa vụ lưu hồ sơ, yêu cầu pháp lý hoặc ngoại lệ hợp pháp; phải giải thích căn cứ, phạm vi và hạn chế truy cập. Rút đồng ý không làm vô hiệu xử lý hợp pháp trước đó. Xóa tài khoản không tự xóa mọi đơn, bản offline/sao lưu hoặc hồ sơ bắt buộc lưu. Nhà cung cấp phối hợp thực hiện yêu cầu hợp lệ trong phạm vi hệ thống, không hứa xóa tức thì mọi bản sao khi chưa kiểm chứng.
+
+## 13. Cloud và chuyển dữ liệu xuyên biên giới
+
+Google/Firebase phục vụ xác thực/cơ sở dữ liệu; tính năng cấu hình có thể dùng Cloudflare/Web Push, nhà cung cấp AI, dịch vụ QR/phông chữ/nội dung bên ngoài. GitHub phân phối bộ cài; Windows dùng Edge, Android dùng trình duyệt TWA. Cần danh mục nhà thầu phụ, luồng dữ liệu, vùng lưu và điều khoản theo cấu hình thực tế. Không cam kết mọi dữ liệu ở Việt Nam hoặc được mã hóa đầu cuối.
+
+Điều 20–22 Luật 91/2025/QH15 và Nghị định 356/2025/NĐ-CP điều chỉnh chuyển xuyên biên giới, đánh giá tác động và cập nhật hồ sơ. Nếu thuộc diện phải lập hồ sơ, tuân thủ thời hạn và thủ tục, gồm mốc 60 ngày tại Điều 20 đối với trường hợp thuộc diện. Chấp nhận ToS hoặc dùng Firebase không tự hoàn tất thủ tục.
+
+Ngoại lệ tại khoản 6 Điều 20, gồm trường hợp lưu dữ liệu người lao động trên cloud, phải kiểm tra đúng phạm vi; không suy rộng sang dữ liệu khách hoặc mọi nghĩa vụ. Quy định cho doanh nghiệp nhỏ/khởi nghiệp cũng cần đáp ứng điều kiện. Nhà cung cấp phải đánh giá nhà thầu phụ/căn cứ chuyển và phối hợp hạn chế luồng bị yêu cầu dừng; không viện dẫn lựa chọn cloud để xóa trách nhiệm của mình.
+
+## 14. Bảo mật và thông báo sự cố
+
+Nhà cung cấp phải áp dụng biện pháp quản lý/kỹ thuật phù hợp trong phần mình quản lý, kiểm soát quyền, bảo vệ khóa, xử lý lỗ hổng và phối hợp khắc phục. Firebase/HTTPS/chữ ký bộ cài không phải chứng nhận tuân thủ toàn diện Luật An ninh mạng 116/2025/QH15 hay Luật 91/2025/QH15. Không bảo đảm an toàn tuyệt đối.
+
+Chủ quán bảo vệ thiết bị, phiên đăng nhập, quyền nhân viên và dữ liệu xuất; báo ngay nghi vấn lộ dữ liệu/sai đơn. Nhà cung cấp khoanh vùng, giữ chứng cứ, hạn chế truy cập cần thiết và thông báo kịp thời; không đợi kết luận đầy đủ mới xử lý.
+
+Điều 23 Luật 91/2025/QH15 quy định thông báo cơ quan chuyên trách chậm nhất 72 giờ từ khi phát hiện hành vi thuộc diện phải thông báo; bên xử lý phải báo kịp thời cho bên kiểm soát/bên kiểm soát và xử lý. Nội dung/thủ tục theo Điều 28 Nghị định 356/2025/NĐ-CP; dữ liệu vị trí/sinh trắc học có quy định riêng tại Điều 29 nếu phát sinh. Không áp dụng mốc này cho mọi yêu cầu người dùng.
+
+Thông báo tách sự thật đã xác minh, phần chưa rõ và biện pháp khắc phục; cập nhật, phối hợp với chủ thể dữ liệu/cơ quan có thẩm quyền khi luật yêu cầu. Tấn công mạng/lỗi bên thứ ba không tự miễn trách nhiệm nếu bên cung cấp vi phạm nghĩa vụ bảo vệ hoặc xử lý chậm.
+
+Rủi ro xử phạt an ninh mạng/dữ liệu cá nhân cần đối chiếu Nghị định 330/2026/NĐ-CP có hiệu lực 19-08-2026 và hành vi thực tế; ngoài tiền phạt có thể có biện pháp bổ sung/khắc phục theo trường hợp. Không coi việc khách đã đồng ý điều khoản là miễn xử phạt hoặc miễn quyền yêu cầu bồi thường.
+
+## 15. AI, khóa API và chat dùng chung
+
+AI là đầu ra máy tạo, có thể sai/lạc hậu, không thay luật sư, kế toán hoặc quyết định lao động. Phân loại và nghĩa vụ theo Luật Trí tuệ nhân tạo 134/2025/QH15, Nghị định 142/2026/NĐ-CP và vai trò thực tế; không mặc nhiên coi trợ lý POS được miễn mọi nghĩa vụ. Con người phải kiểm tra trước quyết định quan trọng.
+
+Câu hỏi và dữ liệu công cụ phục vụ tác vụ có thể đi tới Anthropic, OpenRouter/nhà cung cấp mô hình đằng sau hoặc dịch vụ được chọn, có thể ngoài Việt Nam. Có thể gồm đơn, tên khách, kho, báo cáo và giờ làm. Không gửi thông tin nhạy cảm, bí mật không cần thiết, OTP/mật khẩu hoặc dữ liệu người khác thiếu căn cứ.
+
+Khóa API dùng chung theo cấu hình, có thể phát sinh phí ngoài phí phần mềm. Chủ quán và hỗ trợ được cấp quyền đọc khóa như mục 5; không bảo đảm người có quyền đọc không thể trích xuất. Đặt hạn mức tại nhà cung cấp và đổi khóa khi nghi lộ. Mọi thay đổi AI đề xuất hiện cần bấm Cho phép; việc duyệt không miễn lỗi kỹ thuật hoặc nghĩa vụ kiểm soát quyền của nhà cung cấp.
+
+Chat dùng chung cho mọi chủ quán trong cùng cơ sở dữ liệu cửa hàng và hỗ trợ được cấp quyền, không phải hội thoại riêng từng người. Nội dung bị chặn đọc sau 7 ngày từ lúc tạo cuộc trò chuyện; dữ liệu hết hạn được dọn khi mở/làm mới lịch sử, không có cam kết máy chủ xóa đúng giây. Bản chờ chưa đồng bộ có thể nằm trên thiết bị; bản sao tại nhà cung cấp AI theo chính sách/hợp đồng riêng, không tự bị xóa theo hạn 7 ngày của app.
+
+## 16. Nhân sự, chấm công và khách hàng
+
+Lịch/giờ làm và lương ước tính chỉ hỗ trợ. Chủ quán thông báo nhân viên, hạn chế quyền xem, có quy trình sửa sai, đối chiếu hợp đồng lao động, làm thêm/nghỉ và Bộ luật Lao động 45/2019/QH14. Không tự động kỷ luật/khấu trừ lương chỉ từ báo cáo AI hoặc một dấu thời gian đơn lẻ trái pháp luật.
+
+Khách tích điểm được thông tin mục đích số điện thoại, thời hạn lưu, quyền và kênh liên hệ. Không dùng danh sách để gửi quảng cáo ngoài căn cứ/chấp thuận phù hợp; tuân thủ quy định chống thư/tin nhắn/cuộc gọi rác khi triển khai. Không suy từ sở thích mua thành hồ sơ nhạy cảm trái pháp luật.
+
+## 17. SLA, hỗ trợ và bảo trì
+
+Khi chưa có SLA được giao kết riêng, không có cam kết 99,9%, hỗ trợ 24/7 hoặc thời gian khôi phục bảo đảm. Nhà cung cấp nỗ lực hợp lý sửa lỗi trong phần mình kiểm soát, thông báo bảo trì/sự cố khi có thể và phối hợp dự phòng; điều này không loại bỏ nghĩa vụ bắt buộc.
+
+SLA trả phí cần xác định cửa sổ phục vụ, mức ưu tiên, phản hồi/khôi phục, cách đo gián đoạn, bảo trì, thông báo, RPO/RTO, sao lưu/phục hồi thử, phí ngoài, hoàn tiền/credit và chấm dứt. Đây là nội dung phải thỏa thuận/triển khai, không phải bảo đảm đã tồn tại chỉ vì xuất hiện trong tài liệu.
+
+Gói cloud miễn phí có hạn mức, không mặc nhiên đủ SLA thương mại. Làm rõ người trả phí cloud/AI và xử lý vượt hạn mức trước khi bật. Chủ quán chuẩn bị kết nối/quy trình dự phòng. Lưu offline không bảo đảm đủ chức năng khi lần đầu mở mất mạng, hết phiên, thiết bị hỏng hoặc trình duyệt xóa bộ nhớ; không xóa bộ nhớ/đổi máy trước khi kiểm tra đơn chờ đã đồng bộ.
+
+## 18. Cập nhật web, EXE và APK
+
+Bộ cài chính thức qua YOUR_GITHUB_OWNER/RELEASES_REPO và liên kết trong app. Web nhận nội dung qua Firebase Hosting, cố gắng chờ trạng thái rảnh trước khi áp dụng. Windows có trình cập nhật nền kiểm tra chữ ký feed/hash; Android có thể tải/báo APK mới nhưng hệ điều hành có thể yêu cầu cho phép và xác nhận cài.
+
+Không cam kết cập nhật tức thì khi mất mạng, đầy bộ nhớ, bị chính sách quản trị chặn, tiết kiệm pin hoặc tắt tác vụ nền; không vượt bảo vệ hệ điều hành. Cập nhật kỹ thuật không thay việc thông báo/giao kết hợp lệ khi đổi giá, quyền dùng, mục đích dữ liệu hoặc điều khoản quan trọng. Tự cài phiên bản mới không là bằng chứng đồng ý mọi điều khoản mới.
+
+## 19. Sao lưu, lưu trữ và xóa dữ liệu
+
+Chủ quán xuất dữ liệu định kỳ phù hợp rủi ro, bảo vệ bản sao và kiểm tra phục hồi. Nhà cung cấp thực hiện nghĩa vụ sao lưu/khôi phục đã cam kết; yêu cầu khách tự sao lưu không xóa trách nhiệm do lỗi của nhà cung cấp.
+
+Không coi JSON là bản sao đầy đủ mọi ảnh/cấu hình/khóa/AI/dịch vụ ngoài khi chưa kiểm tra; lịch sử AI hiện không nằm trong file sao lưu JSON cửa hàng. Phải kiểm tra phạm vi và thử phục hồi trước khi dọn nguồn.
+
+Lập hạn lưu theo mục đích/hợp đồng/nghĩa vụ pháp luật. Xóa/dọn có thể không phục hồi được; xác minh nghĩa vụ lưu, bản sao và tranh chấp trước khi xác nhận. Khi kết thúc dịch vụ, thỏa thuận định dạng xuất, thời hạn nhận, chi phí nếu có, kế hoạch xóa/ẩn danh; giữ riêng phần bắt buộc lưu, giới hạn truy cập. Không hứa thời hạn xóa cụ thể khi chưa có quy trình đáp ứng và không giữ dữ liệu trái luật để gây sức ép trả phí.
+
+## 20. Bí mật kinh doanh và tài liệu giới thiệu
+
+Bảo vệ công thức, doanh thu, giá vốn, khách hàng, nhân sự và thông tin không công khai. Chỉ chia sẻ cho người/nhà thầu cần biết có nghĩa vụ bảo mật, hoặc theo yêu cầu hợp pháp; thông báo bên liên quan khi được phép và giới hạn dữ liệu cung cấp.
+
+Ảnh/video demo và tài liệu bán hàng ưu tiên dữ liệu minh họa/ẩn danh; chủ quán cho chụp không tự cho phép công khai dữ liệu cá nhân của khách/nhân viên. Không dùng logo/tên khách làm xác nhận quảng cáo khi chưa được chấp thuận. Quyền sở hữu dữ liệu không đồng nghĩa có thể bỏ quyền của chủ thể dữ liệu.
+
+## 21. Giới hạn trách nhiệm và quyền không thể loại trừ
+
+Không miễn mọi trách nhiệm chỉ bằng nguyên trạng hoặc lỗi bên thứ ba. Xác định nghĩa vụ, vi phạm, thiệt hại, quan hệ nhân quả và hạn chế tổn thất theo Điều 351, 360, 419 Bộ luật Dân sự và Điều 302–305 Luật Thương mại khi áp dụng.
+
+B2B có thể thỏa thuận hợp lệ mức trần cho bồi thường hợp đồng thông thường và loại thiệt hại trong phạm vi luật cho phép, nhưng cần ghi rõ trong hợp đồng riêng. Tài liệu này không tự đặt trần bằng 0 cho gói miễn phí hoặc bằng phí đã trả trong mọi trường hợp.
+
+Không dùng giới hạn để loại nghĩa vụ bắt buộc, trách nhiệm với cơ quan nhà nước/chủ thể dữ liệu, phần bồi thường luật không cho hạn chế hoặc gian lận/cố ý. Vi phạm bảo mật/dữ liệu/sở hữu trí tuệ và lỗi nghiêm trọng cần phân bổ riêng, không mặc nhiên gộp vào trần thông thường. ToS không tự chuyển tiền phạt của nhà cung cấp cho chủ quán hoặc ràng buộc cơ quan xử phạt.
+
+Điều 405–406 Bộ luật Dân sự kiểm soát hợp đồng theo mẫu/điều kiện giao dịch chung; quan hệ tiêu dùng áp dụng Điều 25 Luật 19/2023/QH15. Điều khoản vô hiệu không được viện dẫn để tước quyền khiếu nại/khởi kiện. Quyền luật định và quyền bên thứ ba vẫn được giữ.
+
+## 22. Bất khả kháng và tạm ngừng dịch vụ
+
+Bất khả kháng phải đáp ứng Điều 156 Bộ luật Dân sự; miễn trách nhiệm thương mại đối chiếu Điều 294–295 Luật Thương mại, nghĩa vụ chứng minh/thông báo và giảm thiệt hại. Hết quota, quên trả phí, lỗi cấu hình, mất mạng cục bộ hoặc mọi tấn công mạng không tự là bất khả kháng.
+
+Có thể hạn chế đúng phạm vi khi có yêu cầu hợp pháp, rủi ro an toàn nghiêm trọng hoặc vi phạm cần xử lý. Trừ khẩn cấp/luật yêu cầu khác, thông báo lý do, phạm vi, cách khắc phục và mở lại; không tùy tiện xóa dữ liệu hoặc chặn khiếu nại. Phí, gia hạn, hoàn tiền/chấm dứt theo hợp đồng; tải bộ cài không tự tạo khoản nợ khi chưa thỏa thuận thu phí.
+
+## 23. Kinh doanh SaaS và thương mại điện tử
+
+Nhà cung cấp chịu nghĩa vụ đăng ký kinh doanh, thuế/hóa đơn và công bố thông tin theo mô hình thực tế. Repo công khai/app miễn phí không miễn mọi nghĩa vụ. Khi bán dịch vụ qua website/app, đối chiếu Luật Thương mại điện tử 122/2025/QH15, hướng dẫn/chuyển tiếp và thủ tục tương ứng.
+
+POS nội bộ không tự là sàn thương mại điện tử. Nếu thêm đặt hàng công khai, người bán thứ ba, thanh toán hộ, quảng cáo hoặc bán xuyên biên giới phải đánh giá lại phân loại/thủ tục trước khi mở. Cần luật sư thực tế tại Việt Nam rà soát thông báo/đăng ký/cấp phép cụ thể.
+
+Trước khi bán cho nhiều quán, kiểm thử cô lập dữ liệu/tài khoản từng khách, hợp đồng/DPA/SLA, khóa hỗ trợ, bàn giao và cloud. Giấy phép thương mại không chứng minh kiến trúc hiện có sẵn tách nhiều cửa hàng; không cho quán không liên quan dùng chung cơ sở dữ liệu khi chưa thiết kế và kiểm thử.
+
+## 24. Khiếu nại, tranh chấp và hiệu lực từng phần
+
+Liên hệ support@example.invalid với thời điểm, phiên bản/mã đơn và mô tả tối thiểu; ẩn dữ liệu không liên quan. Ưu tiên phối hợp/thương lượng nhưng không cản quyền đến cơ quan có thẩm quyền hoặc yêu cầu biện pháp khẩn cấp. Gửi hỗ trợ không thay thủ tục pháp lý hay tự gia hạn thời hiệu.
+
+Áp dụng pháp luật Việt Nam trong phạm vi lựa chọn hợp lệ. Nếu không có thỏa thuận trọng tài hợp lệ riêng, tranh chấp thuộc Tòa án có thẩm quyền theo tố tụng; không mặc định áp một nơi xét xử làm mất quyền theo luật. Phần vô hiệu được điều chỉnh, phần còn lại chỉ tiếp tục nếu hợp pháp và thực hiện được. Thỏa thuận song ngữ riêng cần quy định ngôn ngữ ưu tiên.
+
+## 25. Công việc cần hoàn tất trước khi bán thương mại
+
+Xác minh bên cung cấp/mã số thuế; giao kết B2B, SLA và phụ lục dữ liệu; lập bản đồ luồng dữ liệu/hạn lưu; kiểm tra căn cứ thu thập/đồng ý; phân loại hồ sơ dữ liệu, AI và thương mại điện tử nếu thuộc diện; kiểm thử sao lưu, phân quyền và quy trình sự cố.
+
+Tài liệu không xác nhận các thủ tục đó đã xong, có giấy phép trung gian thanh toán, kết nối hóa đơn thuế, chứng chỉ an toàn, SLA trả phí hoặc hệ thống xin đồng ý hoàn chỉnh. Trước ký hợp đồng giới hạn trách nhiệm, nộp hồ sơ, chuyển dữ liệu hoặc giải quyết vụ việc cụ thể, tham vấn trực tiếp luật sư tại Việt Nam và chuyên gia thuế phù hợp.
+
+## Nguồn chính thức
+
+- [Xử phạt thuế/hóa đơn — VBHN 27/2026/VBHN-NĐ-BTC](https://vanban.chinhphu.vn/?classid=0&docid=219310&pageid=27160)
+- [Nghị định 291/2026/NĐ-CP sửa đổi chế tài thuế/hóa đơn](https://chinhphu.vn/?classid=1&docid=218956&pageid=27160&typegroupid=4)
+- [Nghị định 330/2026/NĐ-CP về xử phạt an ninh mạng/dữ liệu](https://chinhphu.vn/?classid=1&docid=219266&pageid=27160&typegroupid=4)
+- [Luật Quản lý thuế 108/2025/QH15](https://vanban.chinhphu.vn/?classid=1&docid=216541&pageid=27160)
+- [Nghị định 254/2026/NĐ-CP](https://vanban.chinhphu.vn/?docid=218689&pageid=27160)
+- [Thông tư 91/2026/TT-BTC](https://vanban.chinhphu.vn/?classid=1&docid=219006&orggroupid=4&pageid=27160)
+- [Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15](https://bocongan.gov.vn/chinh-sach-phap-luat/co-so-du-lieu-van-ban/luat-bao-ve-du-lieu-ca-nhan-1753688803)
+- [Nghị định 356/2025/NĐ-CP](https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/01/356-nd.signed.pdf)
+- [Luật An ninh mạng 116/2025/QH15](https://congbao.chinhphu.vn/van-ban/luat-so-116-2025-qh15-468678.htm)
+- [Luật AI 134/2025/QH15](https://vanban.chinhphu.vn/?classid=1&docid=216334&pageid=27160)
+- [Nghị định 142/2026/NĐ-CP](https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/4/142-2026-ndcp.signed.pdf)
+- [Luật Thương mại điện tử 122/2025/QH15](https://chinhphu.vn/?classid=1&docid=216503&orggroupid=1&pageid=27160)
+- [Luật 131/2025/QH15 sửa đổi Sở hữu trí tuệ](https://vanban.chinhphu.vn/?classid=1&docid=216511&pageid=27160&typegroupid=3)
+- [Nghị định 52/2024/NĐ-CP](https://congbao.chinhphu.vn/tai-ve-van-ban-so-52-2024-nd-cp-41938-50259?format=pdf)
+- [Bộ luật Dân sự 2015, phần hợp đồng](https://vbpl.vn/FileData/TW/Lists/vbpq/Attachments/95942/VanBanGoc_91.2015.QH13.P2.pdf)
+- [Luật Bảo vệ quyền lợi người tiêu dùng 19/2023/QH15](https://vanban.chinhphu.vn/?classid=1&docid=208363&pageid=27160&typegroupid=3)
+- [Luật Kế toán 88/2015/QH13](https://congbao.chinhphu.vn/van-ban/luat-so-88-2015-qh13-18393.htm)

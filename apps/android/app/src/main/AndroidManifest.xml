@@ -1,0 +1,24 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <application android:label="Tiemvio POS" android:icon="@drawable/icon" android:allowBackup="false" android:usesCleartextTraffic="false" android:supportsRtl="true" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+        <activity android:name=".EntryActivity" android:exported="true">
+            <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
+        </activity>
+        <activity android:name=".UpdateActivity" android:exported="false" />
+        <activity android:name="com.google.androidbrowserhelper.trusted.LauncherActivity" android:exported="false" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL" android:value="https://APP_HOST.invalid/" />
+            <meta-data android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR" android:resource="@color/brand" />
+            <meta-data android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR" android:resource="@color/brand" />
+        </activity>
+        <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity" />
+        <provider android:name="androidx.core.content.FileProvider" android:authorities="${applicationId}.files" android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/filepaths" />
+        </provider>
+        <service android:name="com.google.androidbrowserhelper.trusted.DelegationService" android:exported="true">
+            <intent-filter><action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
+        </service>
+    </application>
+</manifest>

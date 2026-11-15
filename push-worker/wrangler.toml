@@ -1,0 +1,12 @@
+# Provision a new Worker/KV/VAPID identity per shop.
+name = "tiemvio-pos-push"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+workers_dev = true
+
+[vars]
+FIREBASE_PROJECT_ID = "YOUR_FIREBASE_PROJECT_ID"
+ALLOWED_ORIGINS = "https://APP_HOST.invalid"
+VAPID_SUBJECT = "mailto:owner@example.invalid"
+VAPID_PUBLIC_KEY = ""
+# Add a new [[kv_namespaces]] binding named SUBS after creating your own KV.

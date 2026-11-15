@@ -1,0 +1,24 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.join(__dirname, '..');
+const pkg = JSON.parse(fs.readFileSync(path.join(root,'package.json')));
+if (!/^\d+\.\d+\.\d+$/.test(pkg.version) || pkg.version.split('.').some(n=>+n>999)) throw Error('Use stable X.Y.Z, each component <=999');
+const lock=JSON.parse(fs.readFileSync(path.join(root,'package-lock.json')));
+lock.version=lock.packages[''].version=pkg.version;
+fs.writeFileSync(path.join(root,'package-lock.json'),JSON.stringify(lock,null,2)+'\n');
+const backend=path.join(root,'web/src/backend.js');
+fs.writeFileSync(backend,fs.readFileSync(backend,'utf8').replace(/version: '[\d.]+'/,'version: \''+pkg.version+'\''));
+const pub = fs.readFileSync(path.join(root,'apps/update-public.pem'),'utf8');
+const assetDir = path.join(root,'apps/android/app/src/main/assets');
+fs.mkdirSync(assetDir,{recursive:true});fs.writeFileSync(path.join(assetDir,'update-public.pem'),pub);
+fs.mkdirSync(path.join(assetDir,'licenses'),{recursive:true});
+for(const file of fs.readdirSync(path.join(root,'apps/licenses')))fs.copyFileSync(path.join(root,'apps/licenses',file),path.join(assetDir,'licenses',file));
+const draw = path.join(root,'apps/android/app/src/main/res/drawable');
+fs.mkdirSync(draw,{recursive:true});
+const png=fs.readFileSync(path.join(root,'web/public/icons/icon-512.png'));
+fs.writeFileSync(path.join(draw,'icon.png'),png);
+// Windows supports PNG data in ICO containers.
+const windowsPng=fs.readFileSync(path.join(root,'web/public/icons/icon-192.png'));
+const header=Buffer.alloc(22);header.writeUInt16LE(1,2);header.writeUInt16LE(1,4);header[6]=192;header[7]=192;header.writeUInt16LE(1,10);header.writeUInt16LE(32,12);header.writeUInt32LE(windowsPng.length,14);header.writeUInt32LE(22,18);
+fs.writeFileSync(path.join(root,'apps/windows/app.ico'),Buffer.concat([header,windowsPng]));
+console.log('Prepared v'+pkg.version);

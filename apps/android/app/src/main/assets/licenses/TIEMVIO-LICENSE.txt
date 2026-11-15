@@ -1,0 +1,8 @@
+Tiemvio POS — Proprietary source-available template
+Copyright (c) 2026 Nguyễn Giang Bảo. All rights reserved.
+
+Chủ sở hữu mã nguồn và đơn vị được chủ sở hữu ủy quyền được sao chép, tùy biến và triển khai mẫu cho các cửa hàng/nhãn hàng theo thỏa thuận riêng. Khách hàng được cấp quyền vận hành theo hợp đồng tương ứng. Công khai repo không tự cấp quyền bán lại hoặc công bố một bản mã nguồn mở. Việc tải/chia sẻ liên kết bộ cài chính thức được cho phép.
+
+Thành phần bên thứ ba giữ nguyên quyền theo giấy phép gốc. Dữ liệu và nội dung cửa hàng thuộc chủ thể có quyền. Không miễn nghĩa vụ bắt buộc hoặc tự đặt trần trách nhiệm bằng 0. Điều khoản dịch vụ mẫu tại docs/TERMS-VI.md phải được hoàn thiện cho từng bên cung cấp và khách hàng; pháp luật bắt buộc và hợp đồng hợp lệ được ưu tiên.
+
+Không có cấu hình cửa hàng, khóa hoặc quyền truy cập dịch vụ thật trong mẫu. Không chứng nhận tuân thủ hay tư vấn pháp lý cho một vụ việc. Trước kinh doanh, rà soát hợp đồng, thuế/hóa đơn và dữ liệu với luật sư Việt Nam.

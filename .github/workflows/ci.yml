@@ -1,0 +1,16 @@
+name: Validate template
+on: [push, pull_request, workflow_dispatch]
+permissions: {contents: read}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24.12.0', cache: npm}
+      - uses: actions/setup-java@v5
+        with: {distribution: temurin, java-version: '21'}
+      - run: npm ci && npm ci --prefix push-worker
+      - run: npm run check:template
+      - run: npm test && npm run test:web
+      - run: npm run build

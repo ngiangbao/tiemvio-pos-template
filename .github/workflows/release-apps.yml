@@ -1,0 +1,156 @@
+name: Release Android + Windows
+on:
+  push:
+    tags: ['v*']
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version matching package.json (X.Y.Z)'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: native-release
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      publish: ${{ steps.version.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24.12.0', cache: npm}
+      - run: node scripts/check-configured.cjs --native
+      - id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          version=$(node -p 'require("./package.json").version')
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            [[ "$INPUT_VERSION" == "$version" ]]
+          else
+            [[ "$GITHUB_REF_NAME" == "v$version" ]]
+          fi
+          if curl --fail --silent "https://api.github.com/repos/YOUR_GITHUB_OWNER/RELEASES_REPO/releases/tags/v$version" >/dev/null; then
+            echo 'Version already published; preserving the existing installers.'
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+      - run: npm ci && npm ci --prefix push-worker
+      - run: npm test
+      - run: npm run release:prepare && npm run build
+  android:
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13'}
+      - name: Build signed APK
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/tiemvio-release.jks"
+          trap 'rm -f "$ANDROID_KEYSTORE_PATH"' EXIT
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          gradle -p apps/android --no-daemon assembleRelease lintRelease
+          mkdir -p release
+          cp apps/android/app/build/outputs/apk/release/app-release.apk release/Tiemvio-POS-Android.apk
+      - uses: actions/upload-artifact@v4
+        with: {name: android, path: release/Tiemvio-POS-Android.apk, retention-days: 7}
+  windows:
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: {dotnet-version: '10.0.x'}
+      - name: Build Windows launcher
+        shell: pwsh
+        env:
+          APP_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          dotnet publish apps/windows/TiemvioPOS.csproj -c Release -r win-x64 -p:Version=$env:APP_VERSION -o apps/windows/publish
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $test = Start-Process -FilePath apps/windows/publish/TiemvioPOS.exe -ArgumentList '--self-test-updater' -PassThru -Wait -WindowStyle Hidden
+          if ($test.ExitCode -ne 0) { throw 'Windows update trust tests failed' }
+          New-Item -ItemType Directory -Force release | Out-Null
+          choco install nsis --no-progress -y
+          & "${env:ProgramFiles(x86)}/NSIS/makensis.exe" "/DVERSION=$env:APP_VERSION" apps/windows/installer.nsi
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        with: {name: windows, path: release/Tiemvio-POS-Windows.exe, retention-days: 7}
+  publish:
+    needs: [prepare, android, windows]
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: firebase-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24.12.0', cache: npm}
+      - uses: actions/download-artifact@v4
+        with: {path: release, merge-multiple: true}
+      - name: Sign update feed
+        env:
+          UPDATE_SIGNING_PRIVATE_KEY: ${{ secrets.UPDATE_SIGNING_PRIVATE_KEY }}
+        run: |
+          node scripts/create-update-feed.cjs release
+          cp web/public/legal.txt release/Tiemvio-POS-Terms.txt
+          cp web/public/Tiemvio-POS-iOS.mobileconfig release/Tiemvio-POS-iOS.mobileconfig
+          (cd apps && zip -r ../release/Third-party-licenses.zip licenses)
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - run: npm ci && npm run build
+      - name: Deploy web before making installers visible
+        run: npx firebase deploy --only hosting --project YOUR_FIREBASE_PROJECT_ID --non-interactive
+      - name: Send installers to public distribution repository
+        env:
+          RELEASES_DEPLOY_KEY: ${{ secrets.RELEASES_DEPLOY_KEY }}
+          APP_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/releases-key"
+          printf '%s\n' "$RELEASES_DEPLOY_KEY" > "$key"
+          trap 'rm -f "$key"' EXIT
+          # GitHub's host keys are in the runner image; never disable host verification.
+          mkdir -p ~/.ssh
+          curl --fail --silent https://api.github.com/meta | jq -r '.ssh_keys[] | "github.com " + .' > ~/.ssh/known_hosts
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          git clone --depth 1 git@github.com:YOUR_GITHUB_OWNER/RELEASES_REPO.git distribution
+          mkdir -p distribution/dist
+          cp release/* distribution/dist/
+          cp apps/RELEASE-NOTES.md distribution/RELEASE-NOTES.md
+          git -C distribution config user.name 'Tiemvio POS Releases'
+          git -C distribution config user.email 'actions@users.noreply.github.com'
+          git -C distribution add dist RELEASE-NOTES.md
+          git -C distribution commit -m "Release Tiemvio POS $APP_VERSION"
+          git -C distribution push origin HEAD:main

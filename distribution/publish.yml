@@ -1,0 +1,48 @@
+name: Publish installers
+on:
+  push:
+    branches: [main]
+    paths: ['dist/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: public-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24.12.0'}
+      - name: Verify signed feed and installer hashes
+        id: feed
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const bytes=fs.readFileSync('dist/native-update.json');
+          const signature=Buffer.from(fs.readFileSync('dist/native-update.sig','utf8').trim(),'base64');
+          if(!crypto.verify('RSA-SHA256',bytes,fs.readFileSync('update-public.pem'),signature))throw Error('Invalid signature');
+          const feed=JSON.parse(bytes);
+          if(feed.schema!==1||!/^\d+\.\d+\.\d+$/.test(feed.version))throw Error('Invalid version');
+          for(const [platform,name] of [['windows','Tiemvio-POS-Windows.exe'],['android','Tiemvio-POS-Android.apk']]){
+            const asset=feed[platform];
+            if(asset.url!==`https://github.com/YOUR_GITHUB_OWNER/RELEASES_REPO/releases/download/v${feed.version}/${name}`)throw Error('Unexpected URL');
+            if(crypto.createHash('sha256').update(fs.readFileSync('dist/'+name)).digest('hex')!==asset.sha256)throw Error('Hash mismatch');
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,'version='+feed.version+'\n');
+          JS
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APP_VERSION: ${{ steps.feed.outputs.version }}
+        run: |
+          set -euo pipefail
+          if gh release view "v$APP_VERSION" >/dev/null 2>&1; then
+            echo 'Refusing to overwrite an existing release.' >&2
+            exit 1
+          fi
+          gh release create "v$APP_VERSION" --target "$GITHUB_SHA" --draft --title "Tiemvio POS $APP_VERSION" --notes-file RELEASE-NOTES.md dist/*
+          gh release edit "v$APP_VERSION" --draft=false --latest

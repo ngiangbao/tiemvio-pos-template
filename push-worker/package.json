@@ -1,0 +1,17 @@
+{
+  "name": "tiemvio-push-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sends lock-screen notifications (Web Push) for Tiemvio POS POS. Runs free on Cloudflare Workers.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "dependencies": {
+    "@block65/webcrypto-web-push": "^2.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
