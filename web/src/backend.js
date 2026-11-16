@@ -8,7 +8,7 @@ import {splitHistorical, mergeHistorical} from './restructure.js';
  * `fs` is the Firestore function set (firebase/firestore, or the in-memory fake used by tests), `db` its handle. */
 
 export const TIEMVIO = {
-  version: '1.0.0',
+  version: '1.20.4',
   roles: ['owner', 'sales', 'support'],
   transitions: {waiting: 'making', making: 'ready', ready: 'delivered'},
   open: ['waiting', 'making', 'ready'],

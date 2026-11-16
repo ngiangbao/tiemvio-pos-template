@@ -1,5 +1,7 @@
 # Tiemvio POS
 
+Phiên bản **1.20.4**, đồng bộ và kiểm tra ngày **16-11-2026**. Xem [lịch sử cập nhật](CHANGELOG.md).
+
 Mẫu POS cho F&B/bán lẻ, bắt đầu với **thực đơn, khách hàng, kho, đơn hàng và báo cáo trống**. Dùng repo này để tạo repo riêng cho từng cửa hàng; không dùng chung dự án Firebase giữa các khách hàng không liên quan.
 
 Giữ các chức năng: bán hàng/giỏ giữ, sửa/gộp/tách đơn, lịch sử sửa, doanh thu/đối soát, kho/công thức, nhân viên/chấm công/lịch làm, khuyến mãi, AI và chat dùng chung 7 ngày, PWA/iOS, mã nguồn bộ cài Android APK/Windows EXE và luồng cập nhật đã ký. Bản mẫu chưa nối tới dịch vụ thật và chưa có bộ cài dùng được trước khi cấu hình.

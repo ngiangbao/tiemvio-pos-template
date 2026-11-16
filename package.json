@@ -1,6 +1,6 @@
 {
   "name": "tiemvio-pos-template",
-  "version": "1.0.0",
+  "version": "1.20.4",
   "private": true,
   "description": "Tiemvio POS — mẫu ứng dụng bán hàng sạch cho từng cửa hàng",
   "scripts": {
