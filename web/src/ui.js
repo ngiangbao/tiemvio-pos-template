@@ -4,6 +4,7 @@ import {parseVietQR,readQrFromImage} from './vietqr.js';
 import {LEGAL_SECTIONS,LEGAL_UPDATED,LEGAL_VERSION,LEGAL_SOURCES} from './legal.js';
 import {appDownloads} from './app-downloads.js';
 import {canApplyUpdate} from './update-policy.js';
+import {clockLocal, clockIso} from './timeclock.js';
 // These listeners affect only this page; browser/OS accessibility controls may override viewport policy.
 function blockTiemvioZoom(e){if(e.cancelable)e.preventDefault();}
 ['gesturestart','gesturechange','gestureend'].forEach(type=>document.addEventListener(type,blockTiemvioZoom,{passive:false}));
@@ -578,7 +579,7 @@ function renderSchedule(){
     }else if(list.length&&!clocks.length&&day<=D.today){notes.push('<span class="late">không có chấm công</span>')}
     else if(!list.length&&clocks.length)notes.push('làm ngoài lịch');
     return `<div class="sched-cmp"><div>Lịch: <strong>${planned?dur(planned):'—'}</strong> · Thực tế: <strong>${clocks.length?dur(worked):'—'}</strong></div>
-      ${clocks.map(c=>`<div class="muted">Chấm công vào ${hhmm(c.inAt)} → ${c.outAt?'tan ca '+hhmm(c.outAt):'<strong>đang làm</strong>'} (${dur(c.minutes)})</div>`).join('')}
+      ${clocks.map(c=>`<div class="muted">Chấm công vào ${hhmm(c.inAt)} → ${c.outAt?'tan ca '+hhmm(c.outAt):'<strong>đang làm</strong>'} (${dur(c.minutes)})${c.warning?`<p class="error">${esc(c.warning)}</p>`:''}${owner?` <button class="small" data-clock-adjust="${esc(c.id)}">${c.outAt?'Điều chỉnh':'Chấm thoát hộ'}</button>`:''}${clockHistoryHtml(c)}</div>`).join('')}
       ${notes.length?`<div class="muted">${notes.join(' · ')}</div>`:''}</div>`;
   };
   const weekPlanned=pick?D.shifts.filter(x=>x.email===pick).reduce((n,x)=>n+toMin(x.end)-toMin(x.start),0):0;
@@ -595,6 +596,7 @@ function renderSchedule(){
         <button id="schedNext" class="small">Tuần sau ›</button>
       </div>
       <div class="muted" style="margin-bottom:8px">${planDMY(D.from)} → ${planDMY(D.to)}${owner?' · <button id="schedCopy" class="small" style="margin-left:6px">Sao chép từ tuần trước</button>':''}</div>
+      ${owner?clockWarningsHtml():''}
       ${owner?`<div class="sched-people">
         <button class="chip ${pick?'':'on'}" data-person="">Tất cả</button>
         ${[...people].map(([em,nm])=>`<button class="chip ${pick===em?'on':''}" data-person="${esc(em)}" style="--c:${schedColor(em)}"><i style="background:${schedColor(em)}"></i>${esc(nm)}</button>`).join('')}
@@ -616,6 +618,7 @@ function renderSchedule(){
       <p class="muted" style="font-size:12.5px">Thanh màu đặc là lịch làm. Thanh viền sọc là giờ chấm công thực tế (vào ca đến tan ca; ● là đang làm).${owner&&!pick?' Chọn một nhân viên để xem chi tiết lệch giờ.':''}</p>
     </section>`;
   $('schedPrev').onclick=()=>schedLoad(dayShift(D.from,-7));
+  wireClockAdjustments();
   $('schedNext').onclick=()=>schedLoad(dayShift(D.from,7));
   $('schedNow').onclick=()=>schedLoad(dayShift(D.today,-((new Date(D.today+'T00:00:00Z').getUTCDay()+6)%7)));   // the Monday of today's week (an empty date would mean "stay on the week being shown")
   $('app').querySelectorAll('[data-person]').forEach(b=>b.onclick=()=>{Z.person=b.dataset.person;Z.pickedAll=!b.dataset.person;renderSchedule()});
@@ -668,6 +671,35 @@ function planShiftModal(x,day){
   };
 }
 
+function clockHistoryHtml(entry){
+  const edits=entry.adjustments||[];if(!edits.length)return '';
+  return `<details style="margin-top:8px"><summary>Lịch sử điều chỉnh (${edits.length})</summary>${[...edits].reverse().map(e=>`<div style="padding:8px 0;border-top:1px solid var(--line)"><strong>${esc(e.byName||e.by)}</strong><div class="muted">${esc(e.by)} · ${fmtDateTime(e.at)}</div><p>${e.fromOutAt?fmtDateTime(e.fromOutAt):'Chưa tan ca'} → ${fmtDateTime(e.toOutAt)}</p><p>Lý do: ${esc(e.reason)}</p></div>`).join('')}</details>`;
+}
+function clockWarningsHtml(){
+  const entries=(S.data.clockedIn||[]).filter(x=>x.warning);if(!entries.length)return '';
+  return `<div class="notice" role="status"><strong>${entries.length} ca cần kiểm tra chấm thoát</strong><p>Chỉ cảnh báo; giờ công chưa được tự chốt. Kiểm tra khi qua ngày, quá giờ phân ca hơn 15 phút hoặc đã chấm công từ 12 giờ.</p>${entries.map(x=>`<p>${esc(x.name||x.email)}: ${esc(x.warning)} <button class="small" data-clock-adjust="${esc(x.id)}">Chấm thoát hộ</button></p>`).join('')}</div>`;
+}
+function wireClockAdjustments(){ $('app').querySelectorAll('[data-clock-adjust]').forEach(b=>b.onclick=()=>clockAdjustmentModal(b.dataset.clockAdjust)); }
+function clockAdjustmentModal(id){
+  const entry=(S.data.clockEntries||[]).find(x=>x.id===id)||(S.sched?.data?.clock||[]).find(x=>x.id===id);
+  if(!entry)return notify('Lượt chấm công đã thay đổi. Hãy tải lại.');
+  const zone=S.data.timezone||'Asia/Ho_Chi_Minh',local=clockLocal(entry.outAt||entry.inAt,zone),mutationId=uid();
+  openModal(`<h2>${entry.outAt?'Điều chỉnh giờ tan ca':'Chấm thoát hộ'}</h2><p><strong>${esc(entry.name||entry.email)}</strong></p><p class="muted">Vào ca: ${fmtDateTime(entry.inAt)}<br>Tan ca hiện tại: ${entry.outAt?fmtDateTime(entry.outAt):'Chưa chấm thoát'}</p>
+    <label for="clockEndDay">Ngày tan ca thực tế</label>${dateField('clockEndDay',local.day)}
+    <label for="clockEndTime">Giờ tan ca thực tế</label><input id="clockEndTime" type="time" step="60" value="${entry.outAt?local.time:''}">
+    <p class="muted">Giờ cửa hàng: ${esc(zone)}. Nhập giờ thực tế, không lấy giờ hiện tại nếu nhân viên đã về từ trước.</p>
+    <label for="clockReason">Lý do điều chỉnh (bắt buộc)</label><textarea id="clockReason" maxlength="300" rows="3" placeholder="Ví dụ: Nhân viên quên chấm thoát, đã xác nhận về lúc 17:00"></textarea>
+    ${clockHistoryHtml(entry)}<div class="modal-foot"><button id="saveClockAdjustment" class="primary wide">Xác nhận giờ tan ca</button><p id="clockError" class="error" role="alert"></p></div>`);
+  wireDate('clockEndDay');
+  $('saveClockAdjustment').onclick=async()=>{
+    if(S.busy)return;
+    let outAt;try{outAt=clockIso(readDate('clockEndDay'),$('clockEndTime').value,zone);}catch(e){$('clockError').textContent=e.message;return;}
+    S.busy=true;$('saveClockAdjustment').disabled=true;
+    try{await rpc('adjustClockOut',{id,expectedOutAt:entry.outAt||'',outAt,reason:$('clockReason').value,mutationId});S.busy=false;closeModal();if(S.sched){S.sched.weeks={};S.sched.at=0;}await refresh(false);if(S.view==='schedule')await schedLoad(S.sched?.from);else render();notify('Đã lưu giờ tan ca và lịch sử điều chỉnh.');}
+    catch(e){S.busy=false;if($('saveClockAdjustment'))$('saveClockAdjustment').disabled=false;if($('clockError'))$('clockError').textContent=e.message;else notify(e.message);}
+  };
+}
+
 /* Staff page: clock in/out, the cash shift (open / close), today's plan and hours. The owner keeps the shift button on the Sales page. */
 function renderClock(){
   const C=S.data.clock||{},c=C.mine,sh=S.data.shift,m=S.data.mine,plan=C.plan||[];
@@ -680,6 +712,7 @@ function renderClock(){
       <div class="muted">${c?'Đang làm · vào ca '+hhmm(c.inAt):'Chưa chấm công vào ca'}</div>
       <div id="clockTimer" style="font-size:34px;font-weight:600;margin:4px 0">${c?clockText(since):'--:--:--'}</div>
       ${late?`<div class="muted">${late}</div>`:''}
+      ${c?.warning?`<p class="notice" role="status">${esc(c.warning)}. Nếu bạn đã về, hãy báo chủ quán nhập giờ tan ca thực tế.</p>`:''}
       <button id="clockBtn" class="wide ${c?'danger':'primary'}" style="margin-top:10px;min-height:52px;font-size:16px">${c?'Tan ca':'Vào ca'}</button>
     </div>
     <div class="card" style="margin-top:12px">
@@ -696,7 +729,7 @@ function renderClock(){
     </div>
     <div class="card" style="margin-top:12px">
       <div class="muted" style="margin-bottom:4px">Lịch sử chấm công</div>
-      ${(C.recent||[]).length?C.recent.map(x=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--line)"><span>${dm(x.day)}<br><span class="muted" style="font-size:12.5px">${hhmm(x.inAt)} → ${hhmm(x.outAt)}</span></span><strong>${dur(x.minutes)}</strong></div>`).join(''):'<p class="muted" style="margin:6px 0 0">Chưa có ca nào.</p>'}
+      ${(C.recent||[]).length?C.recent.map(x=>`<div style="padding:8px 0;border-top:1px solid var(--line)"><div class="row"><span>${dm(x.day)}<br><span class="muted" style="font-size:12.5px">${hhmm(x.inAt)} → ${hhmm(x.outAt)}</span></span><strong>${dur(x.minutes)}</strong></div>${clockHistoryHtml(x)}</div>`).join(''):'<p class="muted" style="margin:6px 0 0">Chưa có ca nào.</p>'}
     </div>
     ${appDownloads()}
   </section>`;
@@ -1524,9 +1557,11 @@ function renderAdmin(){
     `,
     staff:()=>`
         <div class="row" style="margin-top:20px"><h2>Đang chấm công</h2></div>
+        ${clockWarningsHtml()}
         <div class="admin-list">
-          ${(S.data.clockedIn||[]).map(x=>`<div class="card row"><div><strong>${esc(x.name||x.email)}</strong><div class="muted" style="font-size:12.5px">Vào lúc ${hhmm(x.inAt)}</div></div><button class="small" data-clockout="${esc(x.id)}">Tan ca hộ</button></div>`).join('')||'<div class="card empty">Hiện không ai đang chấm công.</div>'}
+          ${(S.data.clockedIn||[]).map(x=>`<div class="card"><div class="row"><div><strong>${esc(x.name||x.email)}</strong><div class="muted" style="font-size:12.5px">Vào lúc ${fmtDateTime(x.inAt)}</div></div><button class="small" data-clock-adjust="${esc(x.id)}">Chấm thoát hộ</button></div>${clockHistoryHtml(x)}</div>`).join('')||'<div class="card empty">Hiện không ai đang chấm công.</div>'}
         </div>
+        <details style="margin-top:16px"><summary>Lượt chấm công đã kết thúc gần đây (tối đa 30)</summary><div class="admin-list" style="margin-top:8px">${(S.data.clockEntries||[]).filter(x=>x.outAt).slice(0,30).map(x=>`<div class="card"><strong>${esc(x.name||x.email)}</strong><p class="muted">${fmtDateTime(x.inAt)} → ${fmtDateTime(x.outAt)}</p><button class="small" data-clock-adjust="${esc(x.id)}">Điều chỉnh giờ tan ca</button>${clockHistoryHtml(x)}</div>`).join('')||'<p class="muted">Chưa có lượt chấm công đã kết thúc.</p>'}</div></details>
 
         <div class="row" style="margin-top:20px">
           <h2>Nhân viên quán</h2>
@@ -1651,7 +1686,7 @@ function renderAdmin(){
   $('newMenu').onclick=()=>menuModal();$('newUser').onclick=()=>userModal();$('newPromo').onclick=()=>promoModal();
   if($('loyaltySettings'))$('loyaltySettings').onclick=loyaltyModal;
   $('app').querySelectorAll('[data-promo]').forEach(b=>b.onclick=()=>promoModal(b.dataset.promo));
-  $('app').querySelectorAll('[data-clockout]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await rpc('clockOut',{id:b.dataset.clockout});await refresh(false);render();notify('Đã chốt tan ca.')}catch(e){b.disabled=false;notify(e.message)}});
+  wireClockAdjustments();
   $('app').querySelectorAll('[data-menu]').forEach(b=>b.onclick=()=>menuModal(b.dataset.menu));
   $('app').querySelectorAll('[data-user]').forEach(b=>b.onclick=()=>userModal(b.dataset.user));
 }

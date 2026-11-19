@@ -1,4 +1,5 @@
 import {splitHistorical, mergeHistorical} from './restructure.js';
+import {clockWarning} from './timeclock.js';
 /* Tiemvio POS backend on Firestore: all shop rules (pricing, stock, loyalty, reports) behind one `call(action, data)` entry point.
  *
  * Firebase's free (Spark) plan has no server code, so business rules run here in the client and Firestore Security
@@ -8,7 +9,7 @@ import {splitHistorical, mergeHistorical} from './restructure.js';
  * `fs` is the Firestore function set (firebase/firestore, or the in-memory fake used by tests), `db` its handle. */
 
 export const TIEMVIO = {
-  version: '1.20.4',
+  version: '1.20.5',
   roles: ['owner', 'sales', 'support'],
   transitions: {waiting: 'making', making: 'ready', ready: 'delivered'},
   open: ['waiting', 'making', 'ready'],
@@ -108,7 +109,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
 
   const cache = {
     menu: new Map(), images: new Map(), inventory: new Map(), recipes: new Map(), users: new Map(), customers: new Map(),
-    promos: new Map(), stockLog: [], clock: [], shifts: [], settings: {}, orders: {}, schedule: new Map(), scheduleReady: null
+    promos: new Map(), stockLog: [], clock: [], clockRecent: [], clockOpen: [], shifts: [], settings: {}, orders: {}, schedule: new Map(), scheduleReady: null
   };
   const emit = () => { clearTimeout(notifyTimer); notifyTimer = setTimeout(() => changeHandler(), 120); };
 
@@ -144,7 +145,10 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
       listen(owner
         ? fs.query(col('timeclock'), fs.orderBy('inAt', 'desc'), fs.limit(120))
         : fs.query(col('timeclock'), fs.where('email', '==', me.email), fs.orderBy('inAt', 'desc'), fs.limit(30)),
-      s => { cache.clock = s.docs.map(d => ({...d.data(), id: d.id})); }),
+      s => { cache.clockRecent = s.docs.map(d => ({...d.data(), id: d.id})); mergeClock(); }),
+      // An old forgotten clock-in must remain visible even after 120 newer entries.
+      listen(owner ? fs.query(col('timeclock'), fs.where('outAt', '==', '')) : fs.query(col('timeclock'), fs.where('email', '==', me.email), fs.where('outAt', '==', '')),
+        s => { cache.clockOpen = s.docs.map(d => ({...d.data(), id: d.id})); mergeClock(); }),
       listen(fs.query(col('shifts'), fs.orderBy('openedAt', 'desc'), fs.limit(11)), s => { cache.shifts = s.docs.map(d => ({...d.data(), id: d.id})); }),
       listen(fs.query(col('orders'), fs.where('createdDay', '==', day)), s => { cache.orders.created = mapOf(s); }),
       listen(fs.query(col('orders'), fs.where('status', 'in', TIEMVIO.open)), s => { cache.orders.open = mapOf(s); }),
@@ -207,6 +211,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
     clearTimeout(notifyTimer);
     cache.menu = new Map(); cache.images = new Map(); loadedImagesRev = null; cache.inventory = new Map(); cache.recipes = new Map();
     cache.users = new Map(); cache.customers = new Map(); cache.promos = new Map(); cache.stockLog = []; cache.clock = [];
+    cache.clockRecent = []; cache.clockOpen = [];
     cache.shifts = []; cache.settings = {}; cache.orders = {}; cache.schedule = new Map(); cache.scheduleReady = null;
   }
   function signOutNow(message) { stopListeners(); me = null; signedOutHandler(message); }
@@ -515,7 +520,8 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
         result.menuCosts[id] = Object.fromEntries(Object.keys(menuSizes(m)).map(z => [z, one(z)]));
       });
       result.stockLog = cache.stockLog.map(x => ({at: x.at, by: x.by, byName: personName(x.by), name: x.name, unit: x.unit, delta: x.delta, reason: x.reason}));
-      result.clockedIn = cache.clock.filter(x => !x.outAt).map(x => ({id: x.id, email: x.email, name: personName(x.email) || x.name, inAt: x.inAt}));
+      result.clockEntries = cache.clock.map(x => ({...x, name: personName(x.email) || x.name, warning: warningOf(x)}));
+      result.clockedIn = result.clockEntries.filter(x => !x.outAt);
     }
     result.channels = TIEMVIO.channels;
     result.tiers = tiers();
@@ -525,7 +531,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
     const myEntries = cache.clock.filter(x => x.email === me.email && x.inAt);
     const weekFrom = mondayOf(day), minsOf = x => minutesBetween(x.inAt, x.outAt || iso());
     result.clock = {
-      mine: myClock ? {...myClock} : null,
+      mine: myClock ? {...myClock, warning: warningOf(myClock)} : null,
       recent: myEntries.filter(x => x.outAt).slice(0, 7).map(x => ({...x, day: dayOf(x.inAt), minutes: minutesBetween(x.inAt, x.outAt)})),
       todayMinutes: myEntries.filter(x => dayOf(x.inAt) === day).reduce((n, x) => n + minsOf(x), 0),
       weekMinutes: myEntries.filter(x => dayOf(x.inAt) >= weekFrom).reduce((n, x) => n + minsOf(x), 0),
@@ -1457,6 +1463,8 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
   }
 
   /* ---------------- time clock: staff see only their own, the owner sees everyone ---------------- */
+  function mergeClock() { cache.clock = [...new Map([...cache.clockRecent, ...cache.clockOpen].map(x => [x.id, x])).values()].sort((a,b) => b.inAt.localeCompare(a.inAt)); }
+  const warningOf = entry => clockWarning(entry, [...cache.schedule.values()], now().getTime(), tz);
   const myOpenClock = () => cache.clock.find(x => x.email === me.email && !x.outAt) || null;
   async function clockIn() {
     allow(['owner', 'sales']);
@@ -1474,7 +1482,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
     allow(['owner', 'sales']);
     const entry = d.id ? cache.clock.find(x => x.id === d.id) : myOpenClock();
     assert(entry && !entry.outAt, 'Không có ca chấm công đang mở.');
-    if (entry.email !== me.email) allow(['owner']); // only the owner can clock someone else out (forgotten tan ca)
+    assert(entry.email === me.email, 'Hãy dùng chấm thoát hộ, chọn giờ thực tế và nhập lý do.');
     const outAt = iso();
     const batch = fs.writeBatch(db);
     batch.update(ref('timeclock', entry.id), {outAt});
@@ -1482,6 +1490,36 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
     entry.outAt = outAt;
     notify({type: 'presence', clocked: false, email: entry.email === me.email ? undefined : entry.email});
     return {...entry};
+  }
+  async function adjustClockOut(d) {
+    allow(['owner']);
+    assert(typeof d.id === 'string' && /^[a-zA-Z0-9_-]{1,100}$/.test(d.id), 'Mã chấm công không hợp lệ.');
+    assert(typeof d.mutationId === 'string' && /^[a-zA-Z0-9_-]{1,60}$/.test(d.mutationId), 'Mã điều chỉnh không hợp lệ.');
+    const reason = text_(d.reason, 300), end = Date.parse(d.outAt);
+    assert(reason.length >= 3, 'Hãy nhập lý do điều chỉnh, ít nhất 3 ký tự.');
+    assert(Number.isFinite(end) && end <= now().getTime(), 'Giờ tan ca không được ở tương lai.');
+    const outAt = new Date(end).toISOString();
+    const result = await fs.runTransaction(db, async tx => {
+      const doc = await tx.get(ref('timeclock', d.id)); assert(doc.exists(), 'Không tìm thấy lượt chấm công.');
+      const entry = doc.data(), edits = entry.adjustments || [];
+      const previous = edits.find(e => e.id === d.mutationId);
+      if (previous) { assert(previous.by === me.email && previous.toOutAt === outAt && previous.reason === reason, 'Mã điều chỉnh đã được sử dụng.'); return {...entry, id: d.id}; }
+      assert(entry.outAt === d.expectedOutAt, 'Ca vừa được thay đổi. Hãy tải lại rồi kiểm tra giờ trước khi sửa.');
+      assert(end >= Date.parse(entry.inAt), 'Giờ tan ca phải bằng hoặc sau giờ vào ca.');
+      assert(outAt !== entry.outAt, 'Giờ tan ca chưa thay đổi.');
+      assert(edits.length < 200, 'Ca này đã đạt giới hạn 200 lần điều chỉnh.');
+      const stamp = now().getTime();
+      const edit = {id: d.mutationId, by: me.email, byName: text_(me.name || me.email, 100), at: new Date(stamp).toISOString(), atMs: stamp, fromOutAt: entry.outAt, toOutAt: outAt, toOutAtMs: end, reason};
+      const adjustments = [...edits, edit]; tx.update(ref('timeclock', d.id), {outAt, adjustments});
+      return {...entry, id: d.id, outAt, adjustments};
+    });
+    cache.clockRecent = cache.clockRecent.map(x => x.id === d.id ? result : x); cache.clockOpen = cache.clockOpen.filter(x => x.id !== d.id); mergeClock();
+    // Another active clock-in, if any, must continue receiving staff order notifications.
+    try {
+      const active = await fs.getDocs(fs.query(col('timeclock'), fs.where('email', '==', result.email), fs.where('outAt', '==', '')));
+      notify({type: 'presence', clocked: !active.empty, email: result.email});
+    } catch (_) { /* A notification failure must not turn a committed payroll correction into an apparent failure. */ }
+    return result;
   }
   const minutesBetween = (a, b) => Math.max(0, Math.round((Date.parse(b) - Date.parse(a)) / 60000));
 
@@ -1585,7 +1623,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
       .map(planView).sort((a, b) => a.day.localeCompare(b.day) || a.start.localeCompare(b.start) || a.name.localeCompare(b.name));
     // Actual clock-in/out comes from the live time-clock copy: no extra round trip (owner: everyone's recent ones, staff: their own).
     const clock = [...new Map(cache.clock.map(x => [x.id || x.inAt + x.email, x])).values()].filter(x => x.inAt && dayOf(x.inAt) >= from && dayOf(x.inAt) <= to && (me.role !== 'sales' || x.email === me.email))
-      .map(x => ({email: x.email, name: personName(x.email) || x.name || x.email, day: dayOf(x.inAt), inAt: x.inAt, outAt: x.outAt || '', minutes: minutesBetween(x.inAt, x.outAt || iso())}))
+      .map(x => ({id: x.id, email: x.email, name: personName(x.email) || x.name || x.email, day: dayOf(x.inAt), inAt: x.inAt, outAt: x.outAt || '', adjustments: x.adjustments || [], warning: warningOf(x), minutes: minutesBetween(x.inAt, x.outAt || iso())}))
       .sort((a, b) => a.inAt.localeCompare(b.inAt));
     return {from, to, today: dayOf(now()), shifts, clock, colors: cache.settings.staffColors || {}, colorCount: SCHEDULE_COLORS};
   }
@@ -1764,7 +1802,7 @@ export function createBackend({fs, db, now = () => new Date(), uuid = () => cryp
   /* ---------------- dispatcher ---------------- */
   const handlers = {
     snapshot, createOrder, updateOrder, editOrder, restructureOrders, reconcileAll, saveMenu, deleteMenu, deleteIngredient, deleteUser, deletePromo, reorderMenu, saveMenuImage, menuImages: async () => menuImages(), saveUser, saveSettings, saveLoyalty, staffOrders, saveIceOptions, saveSugarOptions, scheduleWeek, saveShift, deleteShift, copyWeek, pruneSchedule, storageUsage, cleanupOldData, getAiConfig, saveAiConfig, listAiChats, createAiChat, saveAiTurn, loadAiChat, pruneAiChats, saveDiscountReasons, saveCancelReasons, saveMenuCategories,
-    saveIngredient, adjustStock, saveRecipe, saveExpense, openShift, closeShift, lookupCustomer, report, exportAll, savePromo, clockIn, clockOut,
+    saveIngredient, adjustStock, saveRecipe, saveExpense, openShift, closeShift, lookupCustomer, report, exportAll, savePromo, clockIn, clockOut, adjustClockOut,
     version: async () => ({version: TIEMVIO.version}), logout: async () => true
   };
   async function call(action, data = {}) {

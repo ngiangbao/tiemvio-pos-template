@@ -189,13 +189,40 @@ service cloud.firestore {
       allow delete: if isManager();
     }
 
-    // Time clock: each person clocks themselves in and out and can read only their own entries;
-    // the owner reads everyone's and may clock someone out who forgot.
+    // Time clock: ISO strings are retained for existing reports. Owner corrections append
+    // immutable audit entries; email/inAt cannot be changed. Staff never backdate or edit audit.
+    function clockDate(value) { return value is string && value.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$'); }
+    function validClock(data) {
+      return data.keys().hasAll(['email', 'inAt', 'outAt']) && data.email is string && clockDate(data.inAt)
+        && (!('name' in data) || data.name is string) && (data.outAt == '' || (clockDate(data.outAt) && data.outAt >= data.inAt));
+    }
+    function clockMoment(value, millis) {
+      let t = timestamp.value(millis);
+      return clockDate(value) && t.year() == int(value[0:4]) && t.month() == int(value[5:7]) && t.day() == int(value[8:10])
+        && t.hours() == int(value[11:13]) && t.minutes() == int(value[14:16]) && t.seconds() == int(value[17:19]) && millis % 1000 == int(value[20:23]);
+    }
+    function validClockCorrection() {
+      let old = resource.data.get('adjustments', []);
+      let edits = request.resource.data.adjustments;
+      let edit = edits[edits.size() - 1];
+      return old is list && edits is list && edits.size() <= 200 && edits.size() == old.size() + 1
+        && edits == old.concat([edit])
+        && edit.keys().hasAll(['id', 'by', 'byName', 'at', 'atMs', 'fromOutAt', 'toOutAt', 'toOutAtMs', 'reason'])
+        && edit.keys().hasOnly(['id', 'by', 'byName', 'at', 'atMs', 'fromOutAt', 'toOutAt', 'toOutAtMs', 'reason'])
+        && edit.id is string && edit.id.matches('^[a-zA-Z0-9_-]{1,60}$') && edit.by == mail()
+        && edit.byName is string && edit.byName.size() <= 100 && clockDate(edit.at)
+        && edit.atMs is int && edit.atMs >= request.time.toMillis() - 300000 && edit.atMs <= request.time.toMillis() + 300000
+        && clockMoment(edit.at, edit.atMs) && edit.toOutAtMs is int && edit.toOutAtMs <= request.time.toMillis() && clockMoment(edit.toOutAt, edit.toOutAtMs)
+        && edit.fromOutAt == resource.data.outAt && edit.toOutAt == request.resource.data.outAt
+        && edit.toOutAt != resource.data.outAt && edit.reason is string && edit.reason.size() >= 3 && edit.reason.size() <= 300;
+    }
     match /timeclock/{id} {
       allow read: if isManager() || isSupport() || (isStaff() && resource.data.email == mail());
-      allow create: if isStaff() && request.resource.data.email == mail() && request.resource.data.outAt == '';
-      allow update: if isStaff() && changed(['outAt']) && resource.data.outAt == ''
-        && (isManager() || resource.data.email == mail());
+      allow create: if isStaff() && validClock(request.resource.data) && request.resource.data.keys().hasOnly(['email','name','inAt','outAt'])
+        && request.resource.data.email == mail() && request.resource.data.outAt == '';
+      allow update: if isStaff() && validClock(request.resource.data)
+        && ((changed(['outAt']) && resource.data.outAt == '' && resource.data.email == mail() && request.resource.data.outAt != '')
+          || (isManager() && changed(['outAt', 'adjustments']) && validClockCorrection()));
       allow delete: if isManager() && resource.data.outAt != '';
     }
 

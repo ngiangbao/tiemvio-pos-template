@@ -1,6 +1,6 @@
 # Tiemvio POS
 
-Phiên bản **1.20.4**, đồng bộ và kiểm tra ngày **16-11-2026**. Xem [lịch sử cập nhật](CHANGELOG.md).
+Phiên bản **1.20.5**, đồng bộ và kiểm tra ngày **19-11-2026**. Xem [lịch sử cập nhật](CHANGELOG.md).
 
 Mẫu POS cho F&B/bán lẻ, bắt đầu với **thực đơn, khách hàng, kho, đơn hàng và báo cáo trống**. Dùng repo này để tạo repo riêng cho từng cửa hàng; không dùng chung dự án Firebase giữa các khách hàng không liên quan.
 

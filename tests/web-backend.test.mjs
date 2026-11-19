@@ -93,6 +93,44 @@ test('editing and cancelling a redeemed order retain its original discount after
 });
 
 /* ---------------- sign-in and roles ---------------- */
+
+test('owner corrects a forgotten clock-out with immutable audit, retry safety and refreshed staff totals',async()=>{
+ const o=await phone(OWNER);await seedUser(SALES,'sales');const s=await phone(SALES);
+ const inAt=new Date(Date.now()-2*86400000).toISOString(),outAt=new Date(Date.parse(inAt)+8*3600000).toISOString();
+ await env.withSecurityRulesDisabled(async c=>F.setDoc(F.doc(c.firestore(),'timeclock','forgotten'),{email:SALES,name:'Nhân viên',inAt,outAt:''}));
+ await until(async()=>(await o.call('snapshot',{})).clockedIn.some(c=>c.id==='forgotten'));
+ assert.match((await o.call('snapshot',{})).clockedIn.find(c=>c.id==='forgotten').warning,/ngày trước/);
+ const data={id:'forgotten',expectedOutAt:'',outAt,reason:'Nhân viên quên chấm thoát, xác nhận giờ về',mutationId:key()};
+ await assert.rejects(s.call('adjustClockOut',data),/quyền/);
+ await assert.rejects(o.call('adjustClockOut',{...data,outAt:new Date(Date.parse(inAt)-1).toISOString()}),/sau giờ vào/);
+ await assert.rejects(o.call('adjustClockOut',{...data,outAt:new Date(Date.now()+3600000).toISOString()}),/tương lai/);
+ const result=await o.call('adjustClockOut',data);assert.equal(result.adjustments.length,1);assert.equal(result.adjustments[0].by,OWNER);assert.equal(result.adjustments[0].fromOutAt,'');
+ assert.equal((await o.call('adjustClockOut',data)).adjustments.length,1);
+ await assert.rejects(o.call('adjustClockOut',{...data,mutationId:key()}),/vừa được thay đổi/);
+ const db=rawDb(OWNER),doc=F.doc(db,'timeclock','forgotten');
+ await assertFails(F.updateDoc(doc,{outAt:new Date(Date.parse(outAt)+60000).toISOString()}));
+ await assertFails(F.updateDoc(doc,{adjustments:[]}));
+ await assertFails(F.updateDoc(F.doc(rawDb(SALES),'timeclock','forgotten'),{adjustments:[]}));
+ const forged={...result.adjustments[0],id:key(),fromOutAt:outAt,toOutAt:new Date(Date.now()+3600000).toISOString()};
+ await assertFails(F.updateDoc(doc,{outAt:forged.toOutAt,adjustments:[...result.adjustments,forged]}));
+ const later=new Date(Date.parse(outAt)+30*60000).toISOString();
+ await o.call('adjustClockOut',{...data,expectedOutAt:outAt,outAt:later,mutationId:key(),reason:'Xác nhận làm thêm 30 phút'});
+ const stored=(await F.getDoc(doc)).data();assert.equal(stored.inAt,inAt);assert.equal(stored.adjustments.length,2);assert.deepEqual(stored.adjustments[0],result.adjustments[0]);
+ await until(async()=>!(await s.call('snapshot',{})).clock.mine);
+ const day=o.b.dayOf(new Date(inAt)),report=await o.call('report',{from:day,to:day});assert.equal(report.worked.find(w=>w.email===SALES).minutes,510);
+ const own=await assertSucceeds(F.getDoc(F.doc(rawDb(SALES),'timeclock','forgotten')));assert.equal(own.data().adjustments.length,2);
+});
+
+test('forgotten open entries remain visible beyond the recent 120 entries and two owners cannot overwrite each other',async()=>{
+ const o=await phone(OWNER);await seedUser(SALES,'sales');await seedUser('second-owner@test.com','owner');const other=await phone('second-owner@test.com');
+ const inAt=new Date(Date.now()-10*86400000).toISOString();
+ await env.withSecurityRulesDisabled(async c=>{const b=F.writeBatch(c.firestore());b.set(F.doc(c.firestore(),'timeclock','old-open'),{email:SALES,name:'NV',inAt,outAt:''});for(let i=0;i<125;i++)b.set(F.doc(c.firestore(),'timeclock','closed-'+i),{email:SALES,name:'NV',inAt:new Date(Date.now()-i*60000-60000).toISOString(),outAt:new Date(Date.now()-i*60000).toISOString()});await b.commit();});
+ await until(async()=>(await o.call('snapshot',{})).clockedIn.some(x=>x.id==='old-open'));
+ const base={id:'old-open',expectedOutAt:'',reason:'Xác nhận ca bị bỏ quên',mutationId:key()};
+ const results=await Promise.allSettled([o.call('adjustClockOut',{...base,outAt:new Date(Date.parse(inAt)+8*3600000).toISOString()}),other.call('adjustClockOut',{...base,mutationId:key(),outAt:new Date(Date.parse(inAt)+9*3600000).toISOString()})]);
+ assert.equal(results.filter(x=>x.status==='fulfilled').length,1);
+ const saved=(await F.getDoc(F.doc(rawDb(OWNER),'timeclock','old-open'))).data();assert.equal(saved.adjustments.length,1);
+});
 test('owner signs in the first time, gets the default menu; strangers and locked users are refused', async () => {
   const o = await phone(OWNER, 'Chủ');
   assert.equal(o.r.ok, true);
@@ -541,7 +579,7 @@ test('time clock: staff clock themselves in/out and see only their own; the owne
 
   const theirs = (await o.call('snapshot', {})).clockedIn.find(x => x.email === 'b@test.com');
   await assert.rejects(s.call('clockOut', {id: theirs.id}), /Không có ca|quyền/);
-  await o.call('clockOut', {id: theirs.id});               // owner closes a forgotten clock-out
+  await o.call('adjustClockOut', {id: theirs.id, expectedOutAt:'', outAt:new Date().toISOString(), reason:'Quên chấm thoát', mutationId:key()});
   await s.call('clockOut', {});
   await until(async () => (await o.call('snapshot', {})).clockedIn.length === 0);
   const rep = await o.call('report', {from: today(o), to: today(o)});
@@ -1512,7 +1550,7 @@ test('clocking in and out tells the notification service (staff are alerted abou
   const again = await s.call('clockIn', {});
   await until(async () => (await o.call('snapshot', {})).clockedIn.some(x => x.id === again.id));
   events.length = 0;
-  await o.call('clockOut', {id: again.id});
+  await o.call('adjustClockOut', {id: again.id, expectedOutAt:'', outAt:new Date().toISOString(), reason:'Quên chấm thoát', mutationId:key()});
   const e = events.find(x => x.type === 'presence' && x.from === 'owner');
   assert.deepEqual([e.clocked, e.email], [false, SALES]);
 });
